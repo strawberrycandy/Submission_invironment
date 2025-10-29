@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "ボタン押された！", Toast.LENGTH_SHORT).show()
 
             // 通知予約
-            val workRequest = OneTimeWorkRequestBuilder<RestNotificationWorker>()
+            val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
                 .setInitialDelay(1, TimeUnit.MINUTES)
                 .build()
             WorkManager.getInstance(this).enqueue(workRequest)
@@ -87,31 +87,4 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class RestNotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
-    override fun doWork(): Result {
-        val notification = NotificationCompat.Builder(applicationContext, "eye_rest_channel")
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
-            .setContentTitle("休憩の時間です！")
-            .setContentText("30分経ちました。目を休めましょう👀🌸")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
 
-        val hasNotifyPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-
-        if (hasNotifyPermission) {
-            NotificationManagerCompat.from(applicationContext).notify(1, notification)
-        } else {
-            println("通知権限がないため notify をスキップしました")
-        }
-
-        return Result.success()
-    }
-}
