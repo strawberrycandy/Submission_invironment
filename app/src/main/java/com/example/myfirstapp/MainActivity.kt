@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
             // 通知予約
             val workRequest = OneTimeWorkRequestBuilder<RestNotificationWorker>()
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(1, TimeUnit.MINUTES)
                 .build()
             WorkManager.getInstance(this).enqueue(workRequest)
 
