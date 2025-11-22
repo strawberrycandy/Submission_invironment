@@ -1,115 +1,151 @@
 package com.example.myfirstapp
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import java.util.concurrent.TimeUnit
+
+// --- 定義をファイル先頭に移動 (コードの整理のため) ---
+const val CHANNEL_ID = "eye_rest_channel"
+const val CHANNEL_NAME = "休憩通知チャンネル"
+const val NOTIFICATION_ID = 1
+const val DELAY_MINUTES: Long = 30 // 休憩通知までの時間 (分)
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
+    // 通知権限リクエストランチャー
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                println("通知許可が与えられました")
+                // Log.dでより開発者向けのログ出力
+                Log.d(TAG, "通知許可が与えられました")
             } else {
-                println("通知許可が拒否されました")
+                Log.d(TAG, "通知許可が拒否されました")
+                // 許可が拒否されたことをユーザーに伝えるトースト
+                Toast.makeText(this, "通知を許可しないと休憩のお知らせが届きません。", Toast.LENGTH_LONG).show()
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // R.layout.activity_main の代わりに、ご提示の画面に対応するレイアウトIDを指定してください。
+        // 例: setContentView(R.layout.activity_initial_screen)
         setContentView(R.layout.activity_main)
 
-        // 通知権限チェック
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
+        // 通知権限チェックとリクエスト
+        requestNotificationPermission()
 
+        // 通知チャンネルの作成
         createNotificationChannel()
 
         // ボタン取得
-        val startButton = findViewById<Button>(R.id.startButton)
+        // R.id.startButton の代わりに、ご提示の画面のボタンID (例: R.id.start_button) を指定してください。
+        val startButton = findViewById<Button>(R.id.start_button)
+
+        // ボタンが見つからなかった場合の処理を強化 (Log.eでエラーとして出力)
         if (startButton == null) {
-            println("startButton が null です！ID または setContentView を確認してください")
+            Log.e(TAG, "ID: R.id.startButton のボタンが見つかりませんでした。XMLレイアウトを確認してください。")
             Toast.makeText(this, "ボタンが見つかりません！", Toast.LENGTH_LONG).show()
             return
         }
 
         startButton.setOnClickListener {
-            println("ボタン押された！")
-            Toast.makeText(this, "ボタン押された！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "作業を開始し、${DELAY_MINUTES}分後に通知します。", Toast.LENGTH_SHORT).show()
 
-            // 通知予約
+            // 通知予約 (WorkManager)
             val workRequest = OneTimeWorkRequestBuilder<RestNotificationWorker>()
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(DELAY_MINUTES, TimeUnit.MINUTES) // 定数を使用
                 .build()
             WorkManager.getInstance(this).enqueue(workRequest)
+            Log.d(TAG, "${DELAY_MINUTES}分後の通知を予約しました。")
 
             // 画面遷移
+            // Intent先のActivity名が正しいか確認してください
             val intent = Intent(this, BreakTaskActivity::class.java)
             startActivity(intent)
+            // 遷移後、このActivityを終了したい場合は finish() を追加
+            // finish()
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // 許可がまだない場合はリクエスト
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "eye_rest_channel",
-                "休憩通知チャンネル",
+                CHANNEL_ID, // 定数を使用
+                CHANNEL_NAME, // 定数を使用
                 NotificationManager.IMPORTANCE_HIGH
-            )
+            ).apply {
+                description = "目を休めるための休憩時間をお知らせする通知です。"
+            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
     }
 }
 
+// --- RestNotificationWorkerクラスは変更なしでOK ---
 class RestNotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
+
+    // Log.dを使うことで、アプリのデバッグレベルのログとして確認できます
+    private val workerTag = "NotificationWorker"
+
     override fun doWork(): Result {
-        val notification = NotificationCompat.Builder(applicationContext, "eye_rest_channel")
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID) // 定数を使用
+            .setSmallIcon(android.R.drawable.ic_popup_reminder) // アイコンは必ず自分で用意したものを設定してください
             .setContentTitle("休憩の時間です！")
-            .setContentText("30分経ちました。目を休めましょう👀🌸")
+            .setContentText("${DELAY_MINUTES}分経ちました。目を休めましょう👀🌸") // 定数を使用
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 
+        // Tiramisu (API 33)以降での通知権限の再チェック
         val hasNotifyPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
                 applicationContext,
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true
+            true // Android 12以前は実行時に権限は不要
         }
 
         if (hasNotifyPermission) {
-            NotificationManagerCompat.from(applicationContext).notify(1, notification)
+            // notifyのIDにも定数を使用
+            NotificationManagerCompat.from(applicationContext).notify(NOTIFICATION_ID, notification)
+            Log.d(workerTag, "通知を送信しました (ID: $NOTIFICATION_ID)")
         } else {
-            println("通知権限がないため notify をスキップしました")
+            Log.w(workerTag, "通知権限がないため notify をスキップしました")
         }
 
         return Result.success()
