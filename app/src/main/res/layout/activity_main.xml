@@ -71,6 +71,7 @@
         android:textSize="18sp"
         android:textColor="@android:color/white"
         android:background="@drawable/rounded_button"
+        app:backgroundTint="@null"
         />
 
 </LinearLayout>
