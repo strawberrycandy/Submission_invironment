@@ -27,7 +27,7 @@
         android:text="アプリ名 (仮)"
         android:textSize="36sp"
         android:textColor="#39A3F7"
-        android:fontFamily="sans-serif-light"
+        android:fontFamily="@font/anzu"
         />
 
     <TextView
@@ -37,6 +37,7 @@
         android:text="へ ようこそ！"
         android:textSize="20sp"
         android:layout_marginTop="4dp"
+        android:fontFamily="@font/anzu"
         />
 
     <TextView
@@ -48,6 +49,7 @@
         android:text="あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ"
         android:textColor="#333333"
         android:textSize="14sp"
+        android:fontFamily="@font/anzu"
         />
 
     <TextView
@@ -59,6 +61,7 @@
         android:gravity="center"
         android:textColor="#333333"
         android:textSize="16sp"
+        android:fontFamily="@font/anzu"
         />
 
 
@@ -69,6 +72,7 @@
         android:layout_marginTop="50dp"
         android:text="はじめる"
         android:textSize="18sp"
+        android:fontFamily="@font/anzu"
         android:textColor="@android:color/white"
         android:background="@drawable/rounded_button"
         app:backgroundTint="@null"
