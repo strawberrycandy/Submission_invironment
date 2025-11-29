@@ -5,29 +5,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".TermsAndConditionsActivity">
+    tools:context=".SetupV2TermsActivity">
+
+    <ImageView
+        android:id="@+id/top_logo_image"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/app_logo"
+        android:contentDescription="アプリのロゴ"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/title_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="利用規約"
-        android:textSize="28sp"
+        android:text="アプリ名 (仮) 利用規約"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/top_logo_image" />
 
     <ScrollView
         android:id="@+id/terms_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/border_background"
         android:padding="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/disagree_button"
+        app:layout_constraintBottom_toTopOf="@+id/agreement_checkbox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_text_view">
@@ -41,26 +52,30 @@
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/disagree_button"
+    <CheckBox
+        android:id="@+id/agreement_checkbox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="同意しない"
-        android:backgroundTint="#CCCCCC"
-        android:textColor="@android:color/black"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/agree_button"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:text="私はこの利用規約に同意します"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/next_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
-        android:id="@+id/agree_button"
+        android:id="@+id/next_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="同意する"
-        android:layout_marginStart="8dp"
+        android:text="次へ"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button"
+        app:backgroundTint="@null"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/disagree_button" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.6" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
