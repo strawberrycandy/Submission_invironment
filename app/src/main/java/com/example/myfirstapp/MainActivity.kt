@@ -37,39 +37,57 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 通知権限チェック
+        // Android 13 (TIRAMISU) 以降の場合、通知権限をチェック・要求する
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                // 権限がなければ要求する
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                // 権限があればチャンネルを作成
+                createNotificationChannel()
             }
+        } else {
+            // Android 13未満の場合は、チャンネルを作成するだけでよい
+            createNotificationChannel()
         }
 
-        createNotificationChannel()
+        // ボタンの取得
+        val startButton = findViewById<Button>(R.id.startButton) // 既存のタイマー開始ボタン
+        val setupTestButton = findViewById<Button>(R.id.setupTestButton) // 今回追加したテストボタン
 
-        // ボタン取得
-        val startButton = findViewById<Button>(R.id.startButton)
-        if (startButton == null) {
-            println("startButton が null です！ID または setContentView を確認してください")
+        if (startButton == null || setupTestButton == null) {
+            println("ボタンが見つかりません！")
             Toast.makeText(this, "ボタンが見つかりません！", Toast.LENGTH_LONG).show()
             return
         }
 
+        // 既存の startButton のリスナー (タイマー画面への遷移を維持)
         startButton.setOnClickListener {
-            println("ボタン押された！")
-            Toast.makeText(this, "ボタン押された！", Toast.LENGTH_SHORT).show()
+            println("タイマーボタン押された！")
+            Toast.makeText(this, "タイマー開始！", Toast.LENGTH_SHORT).show()
 
-            // 通知予約
+            // 休憩通知の WorkManager 予約ロジック
             val workRequest = OneTimeWorkRequestBuilder<RestNotificationWorker>()
-                .setInitialDelay(30, TimeUnit.MINUTES)
+                .setInitialDelay(30, TimeUnit.SECONDS) // 30分後に通知
                 .build()
             WorkManager.getInstance(this).enqueue(workRequest)
 
-            // 画面遷移
+            // BreakTaskActivity への遷移
             val intent = Intent(this, BreakTaskActivity::class.java)
+            startActivity(intent)
+        }
+
+        // 初期設定テストボタンのリスナー (SetupV1Activityへ遷移)
+        setupTestButton.setOnClickListener {
+            println("初期設定テストボタン押された！")
+            Toast.makeText(this, "初期設定フローへ", Toast.LENGTH_SHORT).show()
+
+            // SetupV1Activity への遷移
+            val intent = Intent(this, SetupV1Activity::class.java)
             startActivity(intent)
         }
     }
