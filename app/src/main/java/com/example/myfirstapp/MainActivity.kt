@@ -72,6 +72,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, BreakTaskActivity::class.java)
             startActivity(intent)
         }
+
+        val settingsButton: Button = findViewById(R.id.buttonSettings)
+
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun createNotificationChannel() {
