@@ -1,3 +1,4 @@
+// build.gradle.kts (Module: app)
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -34,6 +35,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // ★★★ ここに追記してください ★★★
+    buildFeatures {
+        viewBinding = true
+    }
+    // ★★★ 追記終わり ★★★
 }
 
 dependencies {
