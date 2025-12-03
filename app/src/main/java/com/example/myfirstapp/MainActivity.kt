@@ -37,6 +37,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val startEvolutionButton = findViewById<Button>(R.id.start_evolution_button)
+
+        startEvolutionButton.setOnClickListener {
+            // AnimationTestActivity への画面遷移を行う Intent を作成
+            val intent = Intent(this, AnimationTestActivity::class.java)
+
+            // Activity を起動
+            startActivity(intent)
+        }
+
         // 通知権限チェック
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
