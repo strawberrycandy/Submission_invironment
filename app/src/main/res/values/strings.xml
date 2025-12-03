@@ -1,3 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyFirstApp</string>
+    <string name="app_name">My First App</string>
+    <string name="app_title">マイファーストアプリへようこそ</string>
+    <string name="button_start">スタート</string>
+
+    <string name="desc_background">背景画像</string>
+    <string name="desc_tree">育成中の木</string>
+    <string name="status_title">ステータス:</string>
+    <string name="status_type">種類: ソメイヨシノ</string>
+    <string name="status_stage">成長段階: 5</string>
+    <string name="status_flower">花の状態: 良い</string>
+    <string name="status_soil">土の状態: 良い</string>
+    <string name="desc_icon">アイコン</string>
+
+    <string name="nav_home_label">HOME</string>
+    <string name="nav_status_label">STATUS</string>
+    <string name="nav_setting_label">SETTING</string>
+    <string name="nav_result_label">RESULT</string>
 </resources>
