@@ -22,6 +22,7 @@ import android.app.NotificationManager
 import android.content.Context
 import java.util.concurrent.TimeUnit
 
+
 class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher =
@@ -36,6 +37,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
+
+
+
 
         // 通知権限チェック
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -73,7 +80,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    // ★ Activityが前面に来たらサービスを開始（BGM再生開始）
+    override fun onResume() {
+        super.onResume()
+        val bgmIntent = Intent(this, BackgroundMusicService::class.java)
+        startService(bgmIntent)
+    }
 
+    // ★ Activityが非表示になったらサービスを停止（BGM一時停止/停止）
+    override fun onPause() {
+        super.onPause()
+        val bgmIntent = Intent(this, BackgroundMusicService::class.java)
+        stopService(bgmIntent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
