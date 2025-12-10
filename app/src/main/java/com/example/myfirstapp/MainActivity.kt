@@ -21,9 +21,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import java.util.concurrent.TimeUnit
+import android.media.MediaPlayer
 
 class MainActivity : AppCompatActivity() {
-
+    private var mediaPlayer: MediaPlayer? = null
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -36,6 +37,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // res/raw/bgm.mp3 (ファイル名: bgm) を読み込みます
+        mediaPlayer = MediaPlayer.create(this, R.raw.bgm)
+
+
+
+        // ループ再生の設定
+        mediaPlayer?.apply {
+            isLooping = true
+        }
 
         // 通知権限チェック
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -73,7 +84,35 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    //  Activityがフォアグラウンドに来たら再生を再開
+    override fun onResume() {
+        super.onResume()
+        mediaPlayer?.run {
+            if (!isPlaying) {
+                start()
+            }
+        }
+    }
 
+    // ★ 5. Activityがバックグラウンドに回ったら一時停止
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.run {
+            if (isPlaying) {
+                pause()
+            }
+        }
+    }
+
+    // ★ 6. Activityが破棄されるときにリソースを解放
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.apply {
+            stop()
+            release()
+        }
+        mediaPlayer = null
+    }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
