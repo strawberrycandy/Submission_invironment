@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
@@ -28,11 +29,23 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
-    // タイマー関連のメンバー変数
+    // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false
-    private val defaultTimerDurationMinutes = 1L // タイマー時間を30分に戻しました
+    private val defaultTimerDurationMinutes = 1L
     private var currentLayoutId: Int = R.layout.activity_main
+
+    // 桜の成長段階 (0〜4)
+    private var cherryBlossomGrowthStage: Int = 0
+    // タスク達成回数 (この回数に応じて成長段階が決定される)
+    private var tasksCompletedForGrowth: Int = 0
+
+    // 成長の基準となる定数
+    private val TASKS_PER_GROWTH_STAGE = 2 // 1段階成長するのに必要なタスク回数 (例として2に設定)
+    private val CHERRY_BLOSSOM_GROWTH_STAGE_MAX = 4
+    private val CHERRY_BLOSSOM_GROWTH_STAGE_MIN = 0
+    private val CHERRY_BLOSSOM_STATUS_MAX = 2 // 使用しないが定義
+    private val CHERRY_BLOSSOM_STATUS_MIN = 0 // 使用しないが定義
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -45,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ★★★ 変更: アプリ起動時に成長状態をチェックし、UIに反映させる ★★★
+        updateCherryBlossomStage()
 
         setupLayout(R.layout.activity_main)
 
@@ -75,7 +91,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     // --- 画面ごとのロジック ---
 
     private fun setupStartScreen() {
@@ -88,12 +103,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // デフォルトロケールに関する警告を無視するため、Locale.ROOT を追加 (必須ではないが推奨)
         timerDisplay?.text = String.format(java.util.Locale.ROOT, "%02d:00", defaultTimerDurationMinutes)
 
         startButton?.text = getString(R.string.button_start)
         startButton?.visibility = View.VISIBLE
         goNextButton?.visibility = View.GONE
+
+        // ★★★ 修正: 画面表示時に成長段階とタスク回数をUIに反映 ★★★
+        updateCherryBlossomStage()
 
         startButton?.setOnClickListener {
             startTimer(defaultTimerDurationMinutes)
@@ -111,6 +128,9 @@ class MainActivity : AppCompatActivity() {
             setupLayout(R.layout.activity_main)
             return
         }
+
+        // ★★★ 追加: タイマー実行中の画面でも固定された成長段階の画像をセットする ★★★
+        updateTreeImageByStage(cherryBlossomGrowthStage)
 
         stopButton?.text = getString(R.string.button_stop)
         stopButton?.visibility = View.VISIBLE
@@ -132,25 +152,26 @@ class MainActivity : AppCompatActivity() {
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
 
             override fun onTick(millisUntilFinished: Long) {
-                val totalSeconds = durationMinutes * 60
                 val remainingSeconds = millisUntilFinished / 1000
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60
-                // デフォルトロケールに関する警告を無視するため、Locale.ROOT を追加
                 val formattedTime = String.format(java.util.Locale.ROOT, "%02d:%02d", minutes, seconds)
 
                 findViewById<TextView>(R.id.timer_display)?.text = formattedTime
 
-                updateTreeImage(totalSeconds - remainingSeconds)
+                // ★★★ 削除: タイマー同時進行の画像更新処理を削除しました ★★★
             }
 
             override fun onFinish() {
                 isTimerRunning = false
 
+                // ★★★ 修正: タスク回数を増やし、桜を成長させる ★★★
+                tasksCompletedForGrowth++
+                updateCherryBlossomStage()
+
                 findViewById<TextView>(R.id.timer_display)?.text = "00:00"
                 findViewById<Button>(R.id.stopButton)?.visibility = View.GONE
 
-                // 体操画面へ遷移するボタンを表示
                 val goNextButton = findViewById<Button>(R.id.go_break_task_button)
                 goNextButton?.visibility = View.VISIBLE
 
@@ -166,33 +187,57 @@ class MainActivity : AppCompatActivity() {
         isTimerRunning = true
     }
 
-    private fun updateTreeImage(elapsedSeconds: Long) {
-        val totalSeconds = defaultTimerDurationMinutes * 60
-        val progress = elapsedSeconds.toFloat() / totalSeconds
-        val imageView = findViewById<ImageView>(R.id.tree_image)
-
-        if (imageView == null) return
-
-        // 進行度に応じて画像を変更 (tree_stage_X が res/drawable/ に存在することが前提)
-        val drawableResId = when {
-            progress < 0.25f -> R.drawable.sakura_stage_0
-            progress < 0.50f -> R.drawable.sakura_stage_1
-            progress < 0.75f -> R.drawable.sakura_stage_3
-            else -> R.drawable.tree_stage_4
-        }
-        imageView.setImageResource(drawableResId)
-    }
-
     private fun stopTimer() {
         countDownTimer?.cancel()
         isTimerRunning = false
         WorkManager.getInstance(this).cancelAllWork()
     }
 
-    // --- ナビゲーション処理 ---
+    // --- 桜の成長ロジック (新規追加) ---
+
+    /**
+     * タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
+     */
+    private fun updateCherryBlossomStage() {
+        // 成長段階を計算 (例: 2タスクで1段階アップ)
+        val newStage = tasksCompletedForGrowth / TASKS_PER_GROWTH_STAGE
+
+        // 成長段階を最大値(4)までに制限
+        val limitedStage = newStage.coerceIn(CHERRY_BLOSSOM_GROWTH_STAGE_MIN, CHERRY_BLOSSOM_GROWTH_STAGE_MAX)
+
+        cherryBlossomGrowthStage = limitedStage
+
+        // タスク達成回数表示の更新
+        val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
+        taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
+
+        // 桜画像の更新
+        updateTreeImageByStage(cherryBlossomGrowthStage)
+    }
+
+    /**
+     * 成長段階に基づいて桜の画像リソースを切り替える
+     */
+    private fun updateTreeImageByStage(stage: Int) {
+        // activity_main.xml (startButtonの時) と status_layout_running.xml (stopButtonの時) の両方に対応
+        val imageView = findViewById<ImageView>(R.id.sakura_image) ?: findViewById<ImageView>(R.id.tree_image)
+        if (imageView == null) return
+
+        val drawableResId = when (stage) {
+            0 -> R.drawable.sakura_stage_0
+            1 -> R.drawable.sakura_stage_1
+            2 -> R.drawable.sakura_stage_2 // 必要なリソースIDに置き換えてください
+            3 -> R.drawable.sakura_stage_3
+            //4 -> R.drawable.sakura_stage_4 // 必要なリソースIDに置き換えてください
+            else -> R.drawable.sakura_stage_0
+        }
+        imageView.setImageResource(drawableResId)
+    }
+
+    // --- ナビゲーション処理 (変更なし) ---
+    // ... (setupNavigationBar, setNavigationSelection, resetNavigationColors は省略) ...
 
     private fun setupNavigationBar() {
-        // HOMEボタン (タイマー画面の切り替え)
         findViewById<View>(R.id.nav_home)?.setOnClickListener {
             if (isTimerRunning) {
                 setupLayout(R.layout.status_layout)
@@ -201,50 +246,53 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // STATUSボタン (新しいStatusActivityへ画面遷移)
         findViewById<View>(R.id.nav_status)?.setOnClickListener {
             val intent = Intent(this, StatusActivity::class.java)
             startActivity(intent)
         }
-        // 他のナビゲーション項目 (FAVORITE, SETTINGS, RESULT) のロジックは省略
+        findViewById<View>(R.id.nav_favorite)?.setOnClickListener {
+            val intent = Intent(this, FavoriteActivity::class.java)
+            startActivity(intent)
+        }
+        findViewById<View>(R.id.nav_settings)?.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        findViewById<View>(R.id.nav_result)?.setOnClickListener {
+            val intent = Intent(this, ResultActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setNavigationSelection() {
-        // 現在のレイアウトIDに基づいて、ハイライトするナビゲーションボタンを決定
         val selectedNavId = when (currentLayoutId) {
-            R.layout.activity_main, R.layout.status_layout -> R.id.nav_home // HOMEボタンをハイライト
-            // 他のレイアウトIDがあれば、ここで nav_favorite, nav_settings, nav_result を選択
-            else -> R.id.nav_home // デフォルト
+            R.layout.activity_main, R.layout.status_layout -> R.id.nav_home
+            else -> R.id.nav_home
         }
 
-        // すべてのナビゲーションアイコンの色をリセット
         resetNavigationColors()
 
-        // 選択されたボタンをハイライト
         val navItemView = findViewById<View>(selectedNavId)
 
         val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
         val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
 
-        // 選択状態の色設定 (一時的にAndroidのデフォルトの緑色を使用)
-        val activeColor = resources.getColor(android.R.color.holo_green_dark, theme)
+        val activeColor = ContextCompat.getColor(this, android.R.color.holo_green_dark)
 
         navIcon?.setColorFilter(activeColor)
         navLabel?.setTextColor(activeColor)
     }
 
     private fun resetNavigationColors() {
-        // XML (layout_navigation_bar.xml) に定義されているIDに一致させる
         val navItems = listOf(
-            R.id.nav_home, // HOMEボタンを追加
+            R.id.nav_home,
             R.id.nav_status,
             R.id.nav_favorite,
             R.id.nav_settings,
             R.id.nav_result
         )
 
-        // リセットする色 (例: 灰色)
-        val defaultColor = resources.getColor(android.R.color.darker_gray, theme)
+        val defaultColor = ContextCompat.getColor(this, android.R.color.darker_gray)
 
         for (itemId in navItems) {
             val navItemView = findViewById<View>(itemId)
@@ -277,7 +325,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-// --- NotificationWorker ---
+// --- NotificationWorker (変更なし) ---
 class NotificationWorker(
     private val context: Context,
     workerParams: WorkerParameters

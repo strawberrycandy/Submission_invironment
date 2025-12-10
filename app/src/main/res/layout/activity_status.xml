@@ -6,7 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".StatusActivity">
 
-    <!-- 1. 背景画像 -->
+    <ImageView
+        android:id="@+id/back_button_status"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_close"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:contentDescription="Close Status"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="10dp"
+        android:translationZ="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless" />
+
     <ImageView
         android:id="@+id/background_scene"
         android:layout_width="0dp"
@@ -19,7 +35,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="@string/background_image_description" />
 
-    <!-- 2. ステータス表示部分の背景 -->
     <View
         android:id="@+id/status_panel_background"
         android:layout_width="0dp"
@@ -34,7 +49,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 3. 「ステータス」タイトル -->
     <TextView
         android:id="@+id/status_title_text"
         android:layout_width="wrap_content"
@@ -48,7 +62,6 @@
         app:layout_constraintTop_toTopOf="@id/status_panel_background"
         app:layout_constraintStart_toStartOf="@id/status_panel_background" />
 
-    <!-- 4. ステータス項目をまとめるLinearLayout -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -58,7 +71,6 @@
         app:layout_constraintStart_toStartOf="@id/status_title_text"
         app:layout_constraintEnd_toEndOf="@id/status_panel_background">
 
-        <!-- 種類 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,7 +81,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/sakura_stage4" />
+                android:src="@drawable/sakura_stage_3" />
 
             <TextView
                 android:layout_width="100dp"
@@ -88,7 +100,6 @@
                 tools:text="ソメイヨシノ" />
         </LinearLayout>
 
-        <!-- 成長段階 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,7 +129,6 @@
                 tools:text="3" />
         </LinearLayout>
 
-        <!-- 花の状態 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -148,7 +158,6 @@
                 tools:text="良い" />
         </LinearLayout>
 
-        <!-- 土の状態 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -180,8 +189,6 @@
 
     </LinearLayout>
 
-
-    <!-- 5. ナビゲーションバー -->
     <include
         android:id="@+id/navigation_bar"
         layout="@layout/layout_navigation_bar"

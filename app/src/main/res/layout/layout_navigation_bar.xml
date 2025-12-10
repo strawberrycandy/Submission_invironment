@@ -8,6 +8,13 @@
     android:baselineAligned="false">
 
     <include
+        android:id="@+id/nav_home"
+        layout="@layout/nav_item"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
+
+    <include
         android:id="@+id/nav_status"
         layout="@layout/nav_item"
         android:layout_width="0dp"

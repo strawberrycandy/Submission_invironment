@@ -7,8 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- 背景画像を表示するためのImageView -->
-    <!-- `drawable`フォルダに 'background_sky.png' があることを想定しています -->
     <ImageView
         android:id="@+id/background_image"
         android:layout_width="0dp"
@@ -21,8 +19,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/background_image_description" />
 
-    <!-- 桜の成長状態を表示するためのImageView -->
-    <!-- 初期画像は芽の状態(stage_0)などを設定しておくと良い -->
     <ImageView
         android:id="@+id/sakura_image"
         android:layout_width="300dp"
@@ -35,7 +31,6 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:src="@drawable/sakura_stage_0" />
 
-    <!-- この桜とのタスク回数を表示するTextView -->
     <TextView
         android:id="@+id/tasks_with_cherry_blossom_text"
         android:layout_width="wrap_content"
@@ -51,7 +46,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="この桜とのタスク回数: 5回" />
 
-    <!-- 休憩開始ボタン -->
     <Button
         android:id="@+id/startButton"
         android:layout_width="wrap_content"
@@ -63,5 +57,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/navigation_bar"
+        layout="@layout/layout_navigation_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
+</androidx.constraintlayout.widget.ConstraintLayout>
