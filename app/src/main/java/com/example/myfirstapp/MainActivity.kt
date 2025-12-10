@@ -21,10 +21,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import java.util.concurrent.TimeUnit
-import android.media.MediaPlayer
+
 
 class MainActivity : AppCompatActivity() {
-    private var mediaPlayer: MediaPlayer? = null
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -38,15 +38,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // res/raw/bgm.mp3 (ファイル名: bgm) を読み込みます
-        mediaPlayer = MediaPlayer.create(this, R.raw.bgm)
 
 
 
-        // ループ再生の設定
-        mediaPlayer?.apply {
-            isLooping = true
-        }
+
+
 
         // 通知権限チェック
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -84,34 +80,22 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    //  Activityがフォアグラウンドに来たら再生を再開
+    // ★ Activityが前面に来たらサービスを開始（BGM再生開始）
     override fun onResume() {
         super.onResume()
-        mediaPlayer?.run {
-            if (!isPlaying) {
-                start()
-            }
-        }
+        val bgmIntent = Intent(this, BackgroundMusicService::class.java)
+        startService(bgmIntent)
     }
 
-    // ★ 5. Activityがバックグラウンドに回ったら一時停止
+    // ★ Activityが非表示になったらサービスを停止（BGM一時停止/停止）
     override fun onPause() {
         super.onPause()
-        mediaPlayer?.run {
-            if (isPlaying) {
-                pause()
-            }
-        }
+        val bgmIntent = Intent(this, BackgroundMusicService::class.java)
+        stopService(bgmIntent)
     }
 
-    // ★ 6. Activityが破棄されるときにリソースを解放
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.apply {
-            stop()
-            release()
-        }
-        mediaPlayer = null
     }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
