@@ -25,4 +25,19 @@
         android:focusable="true"
         android:text="スタート" />
 
+    <ImageView
+        android:id="@+id/main_sakura_image_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/sakura_stage_0"
+        android:contentDescription="桜の木" />
+
+    <Button
+        android:id="@+id/start_evolution_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="進化アニメーション再生"
+        android:layout_marginTop="32dp" />
+
 </LinearLayout>
