@@ -10,6 +10,20 @@
     tools:context=".AnimationTestActivity">
 
     <ImageView
+        android:id="@+id/app_background_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background_image"
+        android:contentDescription="背景画像"
+        android:scaleType="centerCrop"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <ImageView
         android:id="@+id/main_sakura_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
