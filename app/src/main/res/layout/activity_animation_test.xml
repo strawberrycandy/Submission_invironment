@@ -63,4 +63,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         />
 
+    <TextView
+        android:id="@+id/debug_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ホーム画面に戻ります"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:padding="20dp"
+        android:background="@android:color/white"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

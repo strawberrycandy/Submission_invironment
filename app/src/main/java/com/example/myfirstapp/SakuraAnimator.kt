@@ -16,8 +16,8 @@ class SakuraAnimator {
         onAnimationFinished: () -> Unit // 完了時のコールバック
     ) {
 
-        // アニメーション時間 (1.5秒)
-        val ANIMATION_DURATION = 1500L
+        // 🚨 修正: アニメーション時間を BGM に合わせて 3.0秒に延長 🚨
+        val ANIMATION_DURATION = 3000L
 
         // 1. フェードアウト (ViewのALPHAを0f→1f: 透明→不透明)
         val fadeInAnimator = ObjectAnimator.ofFloat(whiteOverlayView, View.ALPHA, 0f, 1f).apply {
