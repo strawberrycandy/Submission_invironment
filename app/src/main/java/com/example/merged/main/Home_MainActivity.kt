@@ -36,7 +36,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false
-    private val defaultTimerDurationMinutes = 30L
+    private val defaultTimerDurationMinutes = 1L//テスト用：本来は30
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
