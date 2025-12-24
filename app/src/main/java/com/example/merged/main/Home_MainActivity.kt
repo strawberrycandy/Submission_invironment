@@ -36,7 +36,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false
-    private val defaultTimerDurationMinutes = 30L
+    private val defaultTimerDurationMinutes = 5L
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -156,7 +156,8 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-        val durationMillis = durationMinutes * 60 * 1000
+        // ミリ秒単位で扱われるため、分を定義したならば60 * 1000をしなければならない
+        val durationMillis = durationMinutes * 1000
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
@@ -265,7 +266,7 @@ class Home_MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, ResultActivity::class.java)
+            val intent = Intent(this, TaskStatsActivity::class.java)
             startActivity(intent)
         }
     }

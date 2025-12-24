@@ -16,7 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")   // ← これを追加
     }
+
 }
 
 rootProject.name = "merged"

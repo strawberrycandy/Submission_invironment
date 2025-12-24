@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
 import com.example.merged.first_setup.Tutorial_MainActivity
+import com.example.merged.util.TaskStatsManager
 
 @Composable
 fun BreathTimerScreen(onTaskFinished: () -> Unit) {
@@ -72,6 +73,9 @@ fun BreathTimerScreen(onTaskFinished: () -> Unit) {
 
             showFinished = true
             delay(3000L)
+
+            TaskStatsManager.saveTaskCompleted(context)
+
             fadeOut = true
             onTaskFinished()
         }
