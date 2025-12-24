@@ -28,6 +28,8 @@ import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import com.example.merged.first_setup.Test
+import android.app.PendingIntent
+
 
 
 class Home_MainActivity : AppCompatActivity() {
@@ -338,11 +340,23 @@ class NotificationWorker(
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun doWork(): Result {
+        val intent = Intent(context, Task_MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE // セキュリティ上の決まり
+        )
+
         val notification = NotificationCompat.Builder(context, "eye_rest_channel")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("休憩の時間です")
             .setContentText("目を休ませましょう")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
 

@@ -36,8 +36,6 @@
         <activity android:name=".main.Task_MainActivity"/>
         <activity android:name=".main.Evo_MainActivity"/>
         <activity android:name=".main.AnimationTestActivity"/>
-
-        <activity android:name=".main.SettingsActivity"/>
 </application>
 
 
