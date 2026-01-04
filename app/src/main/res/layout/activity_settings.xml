@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F8FF"
+    android:padding="16dp"
+    tools:context=".SettingsActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:scrollbars="none"> <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_view_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="設定"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎧 音量設定"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BGM:"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:layout_marginStart="8dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <SeekBar
+            android:id="@+id/seekbar_bgm_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="#3CB371"
+            android:thumbTint="#3CB371"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SE:"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:layout_marginStart="8dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <SeekBar
+            android:id="@+id/seekbar_se_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="#3CB371"
+            android:thumbTint="#3CB371"
+            android:layout_marginBottom="32dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📛 ユーザー名の変更"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <TextView
+            android:id="@+id/text_view_current_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="現在のユーザー名: (未設定)"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
+
+        <EditText
+            android:id="@+id/edit_text_new_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="新しいユーザー名を入力 (2-8文字)"
+            android:inputType="text"
+            android:maxLength="8"
+            android:textSize="18sp"
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext_background"
+            android:layout_marginBottom="16dp"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0" />
+
+        <Button
+            android:id="@+id/button_change_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ユーザー名を変更"
+            android:backgroundTint="#60BCE9"
+            android:textColor="#000000"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:layout_gravity="center_horizontal"
+
+            android:shadowColor="#CCCCCC"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="3.0" />
+
+    </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
