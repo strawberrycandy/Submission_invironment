@@ -28,6 +28,8 @@ import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import com.example.merged.first_setup.Test
+import android.app.PendingIntent
+
 
 
 class Home_MainActivity : AppCompatActivity() {
@@ -36,7 +38,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false
-    private val defaultTimerDurationMinutes = 5L
+    private val defaultTimerDurationMinutes = 1L//テスト用：本来は30
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -156,8 +158,7 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-        // ミリ秒単位で扱われるため、分を定義したならば60 * 1000をしなければならない
-        val durationMillis = durationMinutes * 1000
+        val durationMillis = durationMinutes * 60 * 1000
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
@@ -266,7 +267,7 @@ class Home_MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, TaskStatsActivity::class.java)
+            val intent = Intent(this, ResultActivity::class.java)
             startActivity(intent)
         }
     }
@@ -339,11 +340,23 @@ class NotificationWorker(
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun doWork(): Result {
+        val intent = Intent(context, Task_MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE // セキュリティ上の決まり
+        )
+
         val notification = NotificationCompat.Builder(context, "eye_rest_channel")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("休憩の時間です")
             .setContentText("目を休ませましょう")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
 
