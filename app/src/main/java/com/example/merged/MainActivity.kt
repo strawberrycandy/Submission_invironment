@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.merged.first_setup.FirstStartActivity
 import com.example.merged.main.Home_MainActivity
 import android.util.Log
+import com.example.merged.main.BgmService
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 
 private const val TAG = "MainActivity"
 
@@ -33,5 +37,20 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+        // BGMの監視設定
+        val bgmIntent = Intent(this, BgmService::class.java)
+
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                // アプリが画面に出てきたらBGMを開始
+                startService(bgmIntent)
+                Log.d(TAG, "BGM Started")
+            }
+            override fun onStop(owner: LifecycleOwner) {
+                // アプリがバックグラウンドに隠れたらBGMを停止
+                stopService(bgmIntent)
+                Log.d(TAG, "BGM Stopped")
+            }
+        })
     }
 }
