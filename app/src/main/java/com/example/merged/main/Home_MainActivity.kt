@@ -147,10 +147,13 @@ class Home_MainActivity : AppCompatActivity() {
             return
         }
 
-        // ★★★ 追加: タイマー実行中の画面でも固定された成長段階の画像をセットする ★★★
+        // 1. 画像の更新処理
+        // status_layout上のImageView(tree_image)を確実に取得して更新します
         updateTreeImageByStage(cherryBlossomGrowthStage)
 
-        stopButton?.text = getString(R.string.button_stop)
+
+        // stopButton?.text = getString(R.string.button_stop)
+
         stopButton?.visibility = View.VISIBLE
         goNextButton?.visibility = View.GONE
 
