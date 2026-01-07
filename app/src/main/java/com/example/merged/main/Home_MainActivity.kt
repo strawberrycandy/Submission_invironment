@@ -80,7 +80,7 @@ class Home_MainActivity : AppCompatActivity() {
 
         // ナビゲーションバーを取得して、色の自動変更を無効にする
         val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
-        nav.itemIconTintList = null
+        nav?.itemIconTintList = null
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
@@ -255,8 +255,7 @@ class Home_MainActivity : AppCompatActivity() {
         imageView.setImageResource(drawableResId)
     }
 
-    // --- ナビゲーション処理 (変更なし) ---
-    // ... (setupNavigationBar, setNavigationSelection, resetNavigationColors は省略) ...
+
 
     private fun setupNavigationBar() {
         // 1. まずナビゲーションバー本体を取得する
@@ -264,7 +263,6 @@ class Home_MainActivity : AppCompatActivity() {
 
         // 2. ★ここで「色を固定」し「アイコンサイズ」を調整する命令を入れる★
         nav?.itemIconTintList = null // システムによる自動着色（薄暗くする処理）を無効化
-        nav?.itemIconSize = 100     // 数値を大きくするとアイコンがはっきり大きく表示されます（単位はピクセル）
 
 
         findViewById<View>(R.id.nav_home)?.setOnClickListener {
