@@ -65,6 +65,8 @@ class Home_MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
 
+
+
         cherryBlossomGrowthStage = prefs.getInt("cherryBlossomGrowthStage", 0)
         tasksCompletedForGrowth = prefs.getInt("tasksWithThisCherryBlossom", 0)
 
@@ -75,6 +77,10 @@ class Home_MainActivity : AppCompatActivity() {
         updateCherryBlossomStage()
 
         setupLayout(R.layout.activity_main)
+
+        // ナビゲーションバーを取得して、色の自動変更を無効にする
+        val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+        nav.itemIconTintList = null
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
@@ -250,6 +256,14 @@ class Home_MainActivity : AppCompatActivity() {
     // ... (setupNavigationBar, setNavigationSelection, resetNavigationColors は省略) ...
 
     private fun setupNavigationBar() {
+        // 1. まずナビゲーションバー本体を取得する
+        val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+
+        // 2. ★ここで「色を固定」し「アイコンサイズ」を調整する命令を入れる★
+        nav?.itemIconTintList = null // システムによる自動着色（薄暗くする処理）を無効化
+        nav?.itemIconSize = 100     // 数値を大きくするとアイコンがはっきり大きく表示されます（単位はピクセル）
+
+
         findViewById<View>(R.id.nav_home)?.setOnClickListener {
             if (isTimerRunning) {
                 setupLayout(R.layout.status_layout)
