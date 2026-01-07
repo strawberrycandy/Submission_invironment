@@ -10,43 +10,18 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.annotation.RequiresPermission
-import java.util.concurrent.TimeUnit
 import com.example.merged.R
-import com.example.merged.first_setup.Test
 
 class Evo_MainActivity : AppCompatActivity() {
 
-    // 現在の桜の進化段階を保持する変数 (0: 初期状態, 1: レベル1へ進化完了, ...)
+    // ローカルでのテスト表示用のインデックス
     private var currentSakuraStageIndex: Int = 0
-
-    // AnimationTestActivityからの結果を受け取るためのランチャーを登録
-    private val evolutionResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            // AnimationTestActivityから結果が返ってきた場合
-            if (result.resultCode == RESULT_OK) {
-                val data: Intent? = result.data
-                val finalIndex = data?.getIntExtra(AnimationTestActivity.EXTRA_FINAL_STAGE_INDEX, 0) ?: 0
-
-                // 現在のステージインデックスを更新
-                currentSakuraStageIndex = finalIndex
-
-                Toast.makeText(this, "桜がレベル${finalIndex + 1}に進化しました！", Toast.LENGTH_SHORT).show()
-
-                // ボタンの表示を更新
-                updateEvolutionButtonText()
-            }
-        }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -59,21 +34,22 @@ class Evo_MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // 注意: このレイアウトは他のActivityと共有されている可能性があります
+        setContentView(R.layout.activity_start)
 
         val startEvolutionButton = findViewById<Button>(R.id.start_evolution_button)
 
         updateEvolutionButtonText()
 
         startEvolutionButton.setOnClickListener {
-            // AnimationTestActivity への画面遷移を行う Intent を作成
-            val intent = Intent(this, AnimationTestActivity::class.java).apply {
-                // 現在の進化インデックスを Intent に詰めて渡す
-                putExtra(AnimationTestActivity.EXTRA_FINAL_STAGE_INDEX, currentSakuraStageIndex)
-            }
+            // AnimationTestActivity を単純に起動する
+            startActivity(Intent(this, AnimationTestActivity::class.java))
 
-            // Activity を起動し、結果を受け取るようにする
-            evolutionResultLauncher.launch(intent)
+            // テストUIのため、ローカルのインデックスを更新してボタン表示を変える
+            if (currentSakuraStageIndex < 4) {
+                currentSakuraStageIndex++
+                updateEvolutionButtonText()
+            }
         }
 
         // 通知権限チェック
@@ -86,31 +62,7 @@ class Evo_MainActivity : AppCompatActivity() {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
-
         createNotificationChannel()
-
-        // ボタン取得
-        val startButton = findViewById<Button>(R.id.startButton)
-        if (startButton == null) {
-            println("startButton が null です！ID または setContentView を確認してください")
-            Toast.makeText(this, "ボタンが見つかりません！", Toast.LENGTH_LONG).show()
-            return
-        }
-
-        startButton.setOnClickListener {
-            println("ボタン押された！")
-            Toast.makeText(this, "ボタン押された！", Toast.LENGTH_SHORT).show()
-
-            // 通知予約
-            val workRequest = OneTimeWorkRequestBuilder<RestNotificationWorker>()
-                .setInitialDelay(30, TimeUnit.MINUTES)
-                .build()
-            WorkManager.getInstance(this).enqueue(workRequest)
-
-            // 画面遷移
-            val intent = Intent(this, Test::class.java)
-            startActivity(intent)
-        }
     }
 
     // 進化ボタンのテキストを更新するメソッド
@@ -137,35 +89,5 @@ class Evo_MainActivity : AppCompatActivity() {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
-    }
-}
-
-class RestNotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    override fun doWork(): Result {
-        val notification = NotificationCompat.Builder(applicationContext, "eye_rest_channel")
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
-            .setContentTitle("休憩の時間です！")
-            .setContentText("30分経ちました。目を休めましょう👀🌸")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        val hasNotifyPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-
-        if (hasNotifyPermission) {
-            NotificationManagerCompat.from(applicationContext).notify(1, notification)
-        } else {
-            println("通知権限がないため notify をスキップしました")
-        }
-
-        return Result.success()
     }
 }
