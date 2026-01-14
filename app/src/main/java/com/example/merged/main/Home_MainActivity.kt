@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import com.example.merged.first_setup.Test
 import android.app.PendingIntent
+import android.util.Log
 
 
 
@@ -38,7 +39,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false // タイマーが動いているかのフラグ
-    private val defaultTimerDurationMinutes = 30L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
+    private val defaultTimerDurationMinutes = 1L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -165,11 +166,17 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun startTimer(durationMinutes: Long) {
         val durationMillis = durationMinutes * 60 * 1000
+
+
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
 
             override fun onTick(millisUntilFinished: Long) {
+                // ここに書かないとタイマーカウントダウン中にタスク回数の表示が出ない;;
+                val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
+                taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
+
                 val remainingSeconds = millisUntilFinished / 1000
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60
@@ -183,8 +190,6 @@ class Home_MainActivity : AppCompatActivity() {
             override fun onFinish() {
                 isTimerRunning = false
 
-                // ★★★ 修正: タスク回数を増やし、桜を成長させる ★★★
-                tasksCompletedForGrowth++
                 updateCherryBlossomStage()
 
                 findViewById<TextView>(R.id.timer_display)?.text = "00:00"
@@ -230,6 +235,7 @@ class Home_MainActivity : AppCompatActivity() {
         val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
         taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
 
+        Log.d("Home_MainActivity", "${tasksCompletedForGrowth}")
         // 桜画像の更新
         updateTreeImageByStage(cherryBlossomGrowthStage)
     }
