@@ -3,7 +3,7 @@
     <string name="background_image_description">背景の画像</string>
     <string name="button_start">スタート</string>
     <string name="button_stop">ストップ</string>
-    <string name="button_break_task">体操画面へ</string>
+    <string name="button_break_task">タスク画面へ</string>
 
     <string name="nav_home_label">HOME</string>
 

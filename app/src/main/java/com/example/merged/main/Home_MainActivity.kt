@@ -37,8 +37,8 @@ class Home_MainActivity : AppCompatActivity() {
 
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
-    private var isTimerRunning = false
-    private val defaultTimerDurationMinutes = 1L//テスト用：本来は30
+    private var isTimerRunning = false // タイマーが動いているかのフラグ
+    private val defaultTimerDurationMinutes = 1L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -65,11 +65,8 @@ class Home_MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
 
-
-
         cherryBlossomGrowthStage = prefs.getInt("cherryBlossomGrowthStage", 0)
         tasksCompletedForGrowth = prefs.getInt("tasksWithThisCherryBlossom", 0)
-
 
         super.onCreate(savedInstanceState)
 
@@ -167,7 +164,7 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-        val durationMillis = durationMinutes * 60
+        val durationMillis = durationMinutes * 60 * 1000
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
@@ -199,6 +196,7 @@ class Home_MainActivity : AppCompatActivity() {
                 goNextButton?.setOnClickListener {
                     val intent = Intent(this@Home_MainActivity, Task_MainActivity::class.java)
                     startActivity(intent)
+                    finish()
                 }
 
                 Toast.makeText(this@Home_MainActivity, "休憩時間です！", Toast.LENGTH_LONG).show()
