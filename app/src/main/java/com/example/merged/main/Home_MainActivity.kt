@@ -38,7 +38,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false // タイマーが動いているかのフラグ
-    private val defaultTimerDurationMinutes = 1L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
+    private val defaultTimerDurationMinutes = 30L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -245,9 +245,9 @@ class Home_MainActivity : AppCompatActivity() {
         val drawableResId = when (stage) {
             0 -> R.drawable.sakura_stage_0
             1 -> R.drawable.sakura_stage_1
-            2 -> R.drawable.sakura_stage_2 // 必要なリソースIDに置き換えてください
+            2 -> R.drawable.sakura_stage_2
             3 -> R.drawable.sakura_stage_3
-            //4 -> R.drawable.sakura_stage_4 // 必要なリソースIDに置き換えてください
+            4 -> R.drawable.sakura_stage_4
             else -> R.drawable.sakura_stage_0
         }
         imageView.setImageResource(drawableResId)
