@@ -15,6 +15,8 @@ class StatusActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_status)
 
+        displayCurrentStatus()
+
         // 画面上部の「ばつ」アイコンのクリック処理
         findViewById<ImageView>(R.id.back_button_status)?.setOnClickListener {
             finish() // 現在のActivityを終了し、ホーム画面に戻る
@@ -22,6 +24,32 @@ class StatusActivity : AppCompatActivity() {
 
         setupNavigationBar()
         setNavigationSelection()
+    }
+
+    private fun displayCurrentStatus() {
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        // 変数名の訂正に基づき取得
+        val growth = prefs.getInt("cherryBlossomGrowthStage", 0)
+        val flower = prefs.getInt("cherryBlossomStatus", 0)
+        val soil = prefs.getInt("soilStatus", 0)
+
+        // 成長段階の反映 (Lv.x)
+        val growthText = getString(R.string.growth_level_format, growth)
+        findViewById<TextView>(R.id.growth_stage_text)?.text = growthText
+
+        // 数値を文字に変換するヘルパー関数
+        fun convertRating(value: Int): String {
+            return when (value) {
+                2 -> "普通"
+                1 -> "悪い"
+                else -> "悪い" // 0や予期せぬ値
+            }
+        }
+
+        // 花と土の状態を反映
+        findViewById<TextView>(R.id.flower_status_text)?.text = convertRating(flower)
+        findViewById<TextView>(R.id.soil_status_text)?.text = convertRating(soil)
     }
 
     private fun setupNavigationBar() {
