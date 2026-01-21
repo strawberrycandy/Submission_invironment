@@ -64,6 +64,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.8.7") // バージョンは最新でOKです
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
 }

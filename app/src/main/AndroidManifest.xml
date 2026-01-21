@@ -38,6 +38,11 @@
         <activity android:name=".main.AnimationTestActivity"/>
         <activity android:name=".main.TaskStatsActivity"/>
 
+        <service
+            android:name=".main.BgmService"
+            android:enabled="true"
+            android:exported="false" />
+
 </application>
 
 
