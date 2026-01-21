@@ -180,6 +180,7 @@ class Home_MainActivity : AppCompatActivity() {
     private fun startTimer(durationMinutes: Long) {
         val durationMillis = durationMinutes * 60 * 1000 / 6
 
+
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
@@ -221,9 +222,6 @@ class Home_MainActivity : AppCompatActivity() {
         }.start()
 
         isTimerRunning = true
-
-        // 小鳥たちが動ぎ始めます
-        startBirdLoop()
     }
 
     private fun stopTimer() {
