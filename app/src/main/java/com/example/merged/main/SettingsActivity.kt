@@ -71,10 +71,19 @@ class SettingsActivity : AppCompatActivity() {
         val volumeChangeListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    // 修正点: 0ではなく progress を保存
                     when (seekBar?.id) {
-                        R.id.seekbar_bgm_volume -> prefs.edit().putInt("bgmVolume", progress).apply()
-                        R.id.seekbar_se_volume -> prefs.edit().putInt("seVolume", progress).apply()
+                        R.id.seekbar_bgm_volume -> {
+                            // 1. データの保存
+                            prefs.edit().putInt("bgmVolume", progress).apply()
+
+                            // 2. 実行中のBgmServiceに音量を通知
+                            val intent = Intent(this@SettingsActivity, BgmService::class.java)
+                            intent.putExtra("VOLUME", progress)
+                            startService(intent) // 既に動いているServiceにIntentだけ送る
+                        }
+                        R.id.seekbar_se_volume -> {
+                            prefs.edit().putInt("seVolume", progress).apply()
+                        }
                     }
                 }
             }
