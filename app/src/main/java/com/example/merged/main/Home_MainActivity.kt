@@ -167,7 +167,6 @@ class Home_MainActivity : AppCompatActivity() {
     private fun startTimer(durationMinutes: Long) {
         val durationMillis = durationMinutes * 60 * 1000
         countDownTimer?.cancel()
-        countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
 
