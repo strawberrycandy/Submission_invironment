@@ -27,14 +27,13 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 import com.example.merged.R
-import com.example.merged.first_setup.Test
 import android.app.PendingIntent
 import android.util.Log
 
 
 
-class Home_MainActivity : AppCompatActivity() {
 
+class Home_MainActivity : AppCompatActivity() {
 
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
@@ -64,12 +63,13 @@ class Home_MainActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
 
         cherryBlossomGrowthStage = prefs.getInt("cherryBlossomGrowthStage", 0)
         tasksCompletedForGrowth = prefs.getInt("tasksWithThisCherryBlossom", 0)
 
-        super.onCreate(savedInstanceState)
 
         // ★★★ 変更: アプリ起動時に成長状態をチェックし、UIに反映させる ★★★
         updateCherryBlossomStage()
@@ -90,6 +90,9 @@ class Home_MainActivity : AppCompatActivity() {
             }
         }
         createNotificationChannel()
+
+        SoundManager.init(this)
+
     }
 
     private fun setupLayout(layoutId: Int) {
@@ -129,6 +132,7 @@ class Home_MainActivity : AppCompatActivity() {
         updateCherryBlossomStage()
 
         startButton?.setOnClickListener {
+            SoundManager.playSE(this)
             startTimer(defaultTimerDurationMinutes)
             Toast.makeText(this, "タイマーを開始しました", Toast.LENGTH_SHORT).show()
             scheduleNotification()
@@ -156,6 +160,7 @@ class Home_MainActivity : AppCompatActivity() {
         goNextButton?.visibility = View.GONE
 
         stopButton?.setOnClickListener {
+            SoundManager.playSE(this)
             stopTimer()
             Toast.makeText(this, "タイマーを停止しました", Toast.LENGTH_SHORT).show()
             setupLayout(R.layout.activity_main)
@@ -199,6 +204,7 @@ class Home_MainActivity : AppCompatActivity() {
                 goNextButton?.visibility = View.VISIBLE
 
                 goNextButton?.setOnClickListener {
+                    SoundManager.playSE(this@Home_MainActivity)
                     val intent = Intent(this@Home_MainActivity, Task_MainActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -260,7 +266,6 @@ class Home_MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun setupNavigationBar() {
         // 1. まずナビゲーションバー本体を取得する
         val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
@@ -286,7 +291,7 @@ class Home_MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, ResultActivity::class.java)
+            val intent = Intent(this, TaskStatsActivity::class.java)
             startActivity(intent)
         }
     }

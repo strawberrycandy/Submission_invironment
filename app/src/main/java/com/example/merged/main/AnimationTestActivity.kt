@@ -76,6 +76,7 @@ class AnimationTestActivity : AppCompatActivity() {
         }
 
         startEvolutionButton.setOnClickListener {
+            SoundManager.playSE(this)
             if (startEvolutionButton.isEnabled && startEvolutionButton.text == "戻る") {
                 // 🚨 画面遷移をせず、デバッグ表示に切り替える 🚨
                 showDebugMessageAndStop()
