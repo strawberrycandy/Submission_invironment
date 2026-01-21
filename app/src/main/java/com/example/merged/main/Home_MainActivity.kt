@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import android.app.PendingIntent
 import android.util.Log
+import com.example.merged.first_setup.Test
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
 import android.os.Handler
@@ -36,6 +37,7 @@ import android.os.Looper
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
+
 
 class Home_MainActivity : AppCompatActivity() {
 
