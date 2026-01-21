@@ -31,9 +31,10 @@ class AnimationTestActivity : AppCompatActivity() {
 
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         val taskCount = prefs.getInt("tasksWithThisCherryBlossom", 0)
+        val TASKS_PER_GROWTH_STAGE = prefs.getInt("TASKS_PER_GROWTH_STAGE", 2)
 
         // 現在の成長段階を計算 (0, 1, 2, 3, 4)
-        val currentStage = (taskCount / 2).coerceAtMost(4)
+        val currentStage = (taskCount / TASKS_PER_GROWTH_STAGE).coerceAtMost(4)
 
         val sakuraImageView = findViewById<ImageView>(R.id.main_sakura_image_view)
         val btn = findViewById<Button>(R.id.start_evolution_button)
@@ -47,7 +48,7 @@ class AnimationTestActivity : AppCompatActivity() {
         // --- 画像表示とアニメーション実行の条件分岐 ---
         when {
             // ① 偶数回（2,4,6,8回目）かつ、まだ最大(8)を超えていない場合 → 進化アニメを実行
-            taskCount > 0 && taskCount % 2 == 0 && taskCount <= 8 -> {
+            taskCount > 0 && taskCount % TASKS_PER_GROWTH_STAGE == 0 && taskCount <= 4 * TASKS_PER_GROWTH_STAGE -> {
                 // 画面表示時は「進化前」の画像をセット
                 val prevStage = currentStage - 1
                 if (prevStage > 0) {

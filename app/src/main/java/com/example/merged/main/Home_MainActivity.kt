@@ -222,6 +222,9 @@ class Home_MainActivity : AppCompatActivity() {
         }.start()
 
         isTimerRunning = true
+
+        // 小鳥たちが動き始めます
+        startBirdLoop()
     }
 
     private fun stopTimer() {
@@ -373,8 +376,8 @@ class Home_MainActivity : AppCompatActivity() {
                 if (isTimerRunning && currentLayoutId == R.layout.status_layout) {
                     spawnBird()
                 }
-                // 3秒〜7秒のランダムな間隔で次の鳥を出現させる
-                val nextDelay = Random.nextLong(3000, 7000)
+                // 5秒〜10秒のランダムな間隔で次の鳥を出現させる
+                val nextDelay = Random.nextLong(5000, 10000)
                 birdHandler.postDelayed(this, nextDelay)
             }
         }
