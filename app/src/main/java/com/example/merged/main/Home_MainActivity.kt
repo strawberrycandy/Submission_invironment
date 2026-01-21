@@ -31,12 +31,10 @@ import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import android.app.PendingIntent
 import android.util.Log
-import com.example.merged.first_setup.Test
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
 import android.os.Handler
 import android.os.Looper
-import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
 
@@ -406,11 +404,12 @@ class Home_MainActivity : AppCompatActivity() {
 
         // 1. ImageViewの動的生成
         val bird = ImageView(this)
-        val resId = birdResList[Random.nextInt(birdResList.size)]
+        val randomId = Random.nextInt(birdResList.size)
+        val resId = birdResList[randomId]
         bird.setImageResource(resId)
 
         // 鳥のサイズ設定 (例: 60dp)
-        val size = (60 * resources.displayMetrics.density).toInt()
+        val size = (100 * resources.displayMetrics.density).toInt()
         val params = ConstraintLayout.LayoutParams(size, size)
         bird.layoutParams = params
 
@@ -424,7 +423,11 @@ class Home_MainActivity : AppCompatActivity() {
         val endX = if (isLeftToRight) screenWidth else -size.toFloat()
 
         // 逆方向に歩くときは画像を反転させる
-        if (!isLeftToRight) { bird.scaleX = -1f }
+        if (!isLeftToRight) {
+            if (randomId == 0) bird.scaleX = -1f
+        } else {
+            if (randomId == 1) bird.scaleX = -1f
+        }
 
         bird.x = startX
         bird.y = groundY + Random.nextInt(-50, 50) // 高さを少しバラけさせる
