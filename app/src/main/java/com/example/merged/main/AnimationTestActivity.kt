@@ -12,7 +12,6 @@ import android.animation.ValueAnimator
 import android.animation.Animator
 import android.animation.ObjectAnimator // 🚨 デバッグ用フェードインで使用 🚨
 import com.example.merged.R
-import androidx.compose.ui.platform.LocalContext
 
 class AnimationTestActivity : AppCompatActivity() {
 
@@ -29,9 +28,9 @@ class AnimationTestActivity : AppCompatActivity() {
     }
 
     private val nextStageImages = listOf(
-        R.drawable.sakura_stage_1,
         R.drawable.sakura_stage_2,
         R.drawable.sakura_stage_3,
+        R.drawable.sakura_stage_4,
         R.drawable.sakura_stage_4 // 最終レベル (レベル5)
     )
 
@@ -62,7 +61,7 @@ class AnimationTestActivity : AppCompatActivity() {
         if (testStageIndex > 0 && testStageIndex <= nextStageImages.size) {
             sakuraImageView.setImageResource(nextStageImages[testStageIndex - 1])
         } else {
-            sakuraImageView.setImageResource(R.drawable.sakura_stage_0)
+            sakuraImageView.setImageResource(R.drawable.sakura_stage_1)
         }
 
         // 1秒遅延後、進化を自動で開始

@@ -27,7 +27,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/sakura_stage_0" />
+        tools:src="@drawable/sakura_stage_1" />
 
     <TextView
         android:id="@+id/tasks_with_cherry_blossom_text"

@@ -27,11 +27,15 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 import com.example.merged.R
-import com.example.merged.first_setup.Test
 import android.app.PendingIntent
 import android.util.Log
-
-
+import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
+import android.os.Handler
+import android.os.Looper
+import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import kotlin.random.Random
 
 class Home_MainActivity : AppCompatActivity() {
 
@@ -54,6 +58,11 @@ class Home_MainActivity : AppCompatActivity() {
     private val CHERRY_BLOSSOM_STATUS_MAX = 2 // 使用しないが定義
     private val CHERRY_BLOSSOM_STATUS_MIN = 0 // 使用しないが定義
 
+    // 小鳥を動かすための変数
+    private val birdHandler = Handler(Looper.getMainLooper())
+    private var birdRunnable: Runnable? = null
+    private val birdResList = listOf(R.drawable.suzume, R.drawable.mejiro)
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -68,6 +77,7 @@ class Home_MainActivity : AppCompatActivity() {
 
         cherryBlossomGrowthStage = prefs.getInt("cherryBlossomGrowthStage", 0)
         tasksCompletedForGrowth = prefs.getInt("tasksWithThisCherryBlossom", 0)
+        prefs.edit().putInt("TASKS_PER_GROWTH_STAGE", TASKS_PER_GROWTH_STAGE).apply()
 
         super.onCreate(savedInstanceState)
 
@@ -142,6 +152,7 @@ class Home_MainActivity : AppCompatActivity() {
 
         if (!isTimerRunning) {
             setupLayout(R.layout.activity_main)
+            startBirdLoop()
             return
         }
 
@@ -165,8 +176,7 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-        val durationMillis = durationMinutes * 60 * 1000
-
+        val durationMillis = durationMinutes * 60 * 1000 / 6
 
         countDownTimer?.cancel()
 
@@ -209,19 +219,23 @@ class Home_MainActivity : AppCompatActivity() {
         }.start()
 
         isTimerRunning = true
+
+        // 小鳥たちが動ぎ始めます
+        startBirdLoop()
     }
 
     private fun stopTimer() {
         countDownTimer?.cancel()
         isTimerRunning = false
+
+        // 小鳥たちが、止まります、、、、、、、、、
+        stopBirdLoop()
         WorkManager.getInstance(this).cancelAllWork()
     }
 
     // --- 桜の成長ロジック (新規追加) ---
 
-    /**
-     * タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
-     */
+    // タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
     private fun updateCherryBlossomStage() {
         // 成長段階を計算 (例: 2タスクで1段階アップ)
         val newStage = tasksCompletedForGrowth / TASKS_PER_GROWTH_STAGE
@@ -349,6 +363,83 @@ class Home_MainActivity : AppCompatActivity() {
             manager.createNotificationChannel(channel)
         }
     }
+
+    // 鳥の出現ループを管理
+    private fun startBirdLoop() {
+        stopBirdLoop() // 二重起動防止
+        birdRunnable = object : Runnable {
+            override fun run() {
+                // 現在のレイアウトがstatus_layoutの時だけ鳥を出す
+                if (isTimerRunning && currentLayoutId == R.layout.status_layout) {
+                    spawnBird()
+                }
+                // 3秒〜7秒のランダムな間隔で次の鳥を出現させる
+                val nextDelay = Random.nextLong(3000, 7000)
+                birdHandler.postDelayed(this, nextDelay)
+            }
+        }
+        birdHandler.postDelayed(birdRunnable!!, 3000) // 初回は3秒後に出現
+    }
+
+    private fun stopBirdLoop() {
+        birdRunnable?.let { birdHandler.removeCallbacks(it) }
+    }
+
+    // 鳥を生成してアニメーションさせる
+    private fun spawnBird() {
+        val rootLayout = findViewById<ConstraintLayout>(R.id.rootLayout) ?: return
+
+        // 1. ImageViewの動的生成
+        val bird = ImageView(this)
+        val resId = birdResList[Random.nextInt(birdResList.size)]
+        bird.setImageResource(resId)
+
+        // 鳥のサイズ設定 (例: 60dp)
+        val size = (60 * resources.displayMetrics.density).toInt()
+        val params = ConstraintLayout.LayoutParams(size, size)
+        bird.layoutParams = params
+
+        // 2. 出現位置の設定
+        val screenWidth = rootLayout.width.toFloat()
+        val groundY = rootLayout.height.toFloat() * 0.7f // 画面の下の方(草むら付近)
+
+        // 左から右か、右から左かランダムに決定
+        val isLeftToRight = Random.nextBoolean()
+        val startX = if (isLeftToRight) -size.toFloat() else screenWidth
+        val endX = if (isLeftToRight) screenWidth else -size.toFloat()
+
+        // 逆方向に歩くときは画像を反転させる
+        if (!isLeftToRight) { bird.scaleX = -1f }
+
+        bird.x = startX
+        bird.y = groundY + Random.nextInt(-50, 50) // 高さを少しバラけさせる
+
+        rootLayout.addView(bird)
+
+        // 3. アニメーション (水平移動 + ピョコピョコ跳ねる)
+
+        // 横移動
+        val moveX = ObjectAnimator.ofFloat(bird, "translationX", startX, endX)
+        moveX.duration = Random.nextLong(4000, 7000) // 4〜7秒かけて横切る
+
+        // 縦のピョコピョコ（歩いている感じ）
+        val hopY = ObjectAnimator.ofFloat(bird, "translationY", bird.y, bird.y - 30f)
+        hopY.duration = 300
+        hopY.repeatCount = (moveX.duration / hopY.duration).toInt()
+        hopY.repeatMode = ObjectAnimator.REVERSE
+
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(moveX, hopY)
+
+        // アニメーション終了後にViewを削除
+        animatorSet.addListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                rootLayout.removeView(bird)
+            }
+        })
+
+        animatorSet.start()
+    }
 }
 
 // --- NotificationWorker (変更なし) ---
@@ -390,3 +481,4 @@ class NotificationWorker(
         return Result.success()
     }
 }
+
