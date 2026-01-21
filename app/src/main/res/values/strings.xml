@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MyFirstApp</string>
+    <string name="welcome_message">アプリ名（仮）へようこそ！</string>
+    <string name="intro_text">ああああああああああああああああああああああああああああああああああああああああああああああ。\nまずは簡単なチュートリアルをやってみましょう！</string>
+    <string name="start_button">はじめる</string>
+    <string name="app_name_placeholder">アプリ名（仮）</string>
 </resources>
