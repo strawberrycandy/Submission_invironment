@@ -27,7 +27,7 @@
         android:id="@+id/main_sakura_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/sakura_stage_0"
+        android:src="@drawable/sakura_stage_1"
         android:contentDescription="桜の木"
         android:scaleType="centerCrop"
 
