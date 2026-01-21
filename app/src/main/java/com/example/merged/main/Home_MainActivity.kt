@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 import com.example.merged.R
 import com.example.merged.first_setup.Test
 import android.app.PendingIntent
+import android.util.Log
 
 
 
@@ -164,12 +165,17 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-        val durationMillis = durationMinutes * 60*1000
+        val durationMillis = durationMinutes * 60 * 1000
+        countDownTimer?.cancel()
         countDownTimer?.cancel()
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
 
             override fun onTick(millisUntilFinished: Long) {
+                // ここに書かないとタイマーカウントダウン中にタスク回数の表示が出ない;;
+                val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
+                taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
+
                 val remainingSeconds = millisUntilFinished / 1000
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60
@@ -183,8 +189,6 @@ class Home_MainActivity : AppCompatActivity() {
             override fun onFinish() {
                 isTimerRunning = false
 
-                // ★★★ 修正: タスク回数を増やし、桜を成長させる ★★★
-                tasksCompletedForGrowth++
                 updateCherryBlossomStage()
 
                 findViewById<TextView>(R.id.timer_display)?.text = "00:00"
@@ -230,6 +234,7 @@ class Home_MainActivity : AppCompatActivity() {
         val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
         taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
 
+        Log.d("Home_MainActivity", "${tasksCompletedForGrowth}")
         // 桜画像の更新
         updateTreeImageByStage(cherryBlossomGrowthStage)
     }
@@ -245,9 +250,9 @@ class Home_MainActivity : AppCompatActivity() {
         val drawableResId = when (stage) {
             0 -> R.drawable.sakura_stage_0
             1 -> R.drawable.sakura_stage_1
-            2 -> R.drawable.sakura_stage_2 // 必要なリソースIDに置き換えてください
+            2 -> R.drawable.sakura_stage_2
             3 -> R.drawable.sakura_stage_3
-            //4 -> R.drawable.sakura_stage_4 // 必要なリソースIDに置き換えてください
+            4 -> R.drawable.sakura_stage_4
             else -> R.drawable.sakura_stage_0
         }
         imageView.setImageResource(drawableResId)
