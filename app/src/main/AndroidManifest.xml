@@ -38,6 +38,8 @@
         <activity android:name=".main.AnimationTestActivity"/>
         <activity android:name=".main.TaskStatsActivity"/>
 
+        <receiver android:name=".main.NotificationDismissReceiver" android:exported="false"/>
+
 </application>
 
 
