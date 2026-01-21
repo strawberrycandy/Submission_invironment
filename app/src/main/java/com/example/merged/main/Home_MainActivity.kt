@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -79,6 +81,7 @@ class Home_MainActivity : AppCompatActivity() {
         // ナビゲーションバーを取得して、色の自動変更を無効にする
         val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         nav?.itemIconTintList = null
+        nav?.itemTextColor = null // 文字の自動変色もオフにする
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
@@ -299,15 +302,20 @@ class Home_MainActivity : AppCompatActivity() {
 
         resetNavigationColors()
 
-        val navItemView = findViewById<View>(selectedNavId)
+        val navItemView = findViewById<View>(selectedNavId) ?: return
 
-        val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-        val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
+        val navIcon = navItemView.findViewById<ImageView>(R.id.nav_icon)
+        val navLabel = navItemView.findViewById<TextView>(R.id.nav_label)
 
-        val activeColor = ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        // ★文字色とアイコンを「黒」に指定
+        val activeColor = Color.BLACK
 
         navIcon?.setColorFilter(activeColor)
         navLabel?.setTextColor(activeColor)
+        navLabel?.setTypeface(null, Typeface.BOLD)
+
+        // ★修正点：Homeが選択された時に水色の背景をセットする
+        navItemView.setBackgroundResource(R.drawable.nav_item_background)
     }
 
     private fun resetNavigationColors() {
@@ -321,12 +329,16 @@ class Home_MainActivity : AppCompatActivity() {
         val defaultColor = ContextCompat.getColor(this, android.R.color.darker_gray)
 
         for (itemId in navItems) {
-            val navItemView = findViewById<View>(itemId)
-            val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-            val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
+            val navItemView = findViewById<View>(itemId) ?: continue
+            val navIcon = navItemView.findViewById<ImageView>(R.id.nav_icon)
+            val navLabel = navItemView.findViewById<TextView>(R.id.nav_label)
 
             navIcon?.setColorFilter(defaultColor)
             navLabel?.setTextColor(defaultColor)
+            navLabel?.setTypeface(null, Typeface.NORMAL)
+
+            // 背景をクリアする
+            navItemView.background = null
         }
     }
 
