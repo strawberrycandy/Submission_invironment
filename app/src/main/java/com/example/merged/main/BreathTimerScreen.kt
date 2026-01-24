@@ -125,7 +125,9 @@ fun BreathTimerScreen(onTaskFinished: () -> Unit) {
 
             if (!isStarted) {
                 Button(
-                    onClick = { isStarted = true },
+                    onClick = {
+                        SoundManager.playSE(context)
+                        isStarted = true },
                     modifier = Modifier
                         .clip(CircleShape)
                         .padding(horizontal = 8.dp)

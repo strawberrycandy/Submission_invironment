@@ -83,6 +83,10 @@ class SettingsActivity : AppCompatActivity() {
                         }
                         R.id.seekbar_se_volume -> {
                             prefs.edit().putInt("seVolume", progress).apply()
+
+                            // 2. ★確認のために音を鳴らす★
+                            // これにより、ユーザーはスライダーを動かしながら「今の音量」を確認できます
+                            SoundManager.playSE(this@SettingsActivity)
                         }
                     }
                 }
