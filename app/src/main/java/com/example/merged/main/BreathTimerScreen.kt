@@ -22,7 +22,8 @@ import androidx.compose.ui.unit.dp
 import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
 import com.example.merged.first_setup.Tutorial_MainActivity
-import com.example.merged.util.TaskStatsManager
+// ...既存のimport...
+import com.example.merged.util.TaskStatsManager  // これを追加
 
 @Composable
 fun BreathTimerScreen(onTaskFinished: () -> Unit) {

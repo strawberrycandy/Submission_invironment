@@ -13,6 +13,8 @@ class Task_MainActivity : ComponentActivity() {
         setContent {
             BreathTimerScreen(
                 onTaskFinished = {
+                    // 統計用のデータを保存する
+                    com.example.merged.util.TaskStatsManager.saveTaskCompleted(this@Task_MainActivity)
                     // 1. データの読み込みと更新
                     val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
                     val currentCount = prefs.getInt("tasksWithThisCherryBlossom", 0)
