@@ -207,6 +207,9 @@ class Home_MainActivity : AppCompatActivity() {
             override fun onFinish() {
                 isTimerRunning = false
 
+                // グラフ統計用のデータを保存する
+                com.example.merged.util.TaskStatsManager.saveTaskCompleted(this@Home_MainActivity)
+
                 updateCherryBlossomStage()
 
                 findViewById<TextView>(R.id.timer_display)?.text = "00:00"
@@ -308,7 +311,7 @@ class Home_MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, ResultActivity::class.java)
+            val intent = Intent(this, TaskStatsActivity::class.java)
             startActivity(intent)
         }
     }
