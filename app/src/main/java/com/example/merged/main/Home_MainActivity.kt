@@ -103,6 +103,8 @@ class Home_MainActivity : AppCompatActivity() {
             }
         }
         createNotificationChannel()
+        // SoundManagerを初期化
+        SoundManager.init(this)
     }
 
     private fun setupLayout(layoutId: Int) {
@@ -142,6 +144,7 @@ class Home_MainActivity : AppCompatActivity() {
         updateCherryBlossomStage()
 
         startButton?.setOnClickListener {
+            SoundManager.playSE(this)
             startTimer(defaultTimerDurationMinutes)
             Toast.makeText(this, "タイマーを開始しました", Toast.LENGTH_SHORT).show()
             scheduleNotification()
@@ -170,6 +173,7 @@ class Home_MainActivity : AppCompatActivity() {
         goNextButton?.visibility = View.GONE
 
         stopButton?.setOnClickListener {
+            SoundManager.playSE(this)
             stopTimer()
             Toast.makeText(this, "タイマーを停止しました", Toast.LENGTH_SHORT).show()
             setupLayout(R.layout.activity_main)
@@ -212,6 +216,7 @@ class Home_MainActivity : AppCompatActivity() {
                 goNextButton?.visibility = View.VISIBLE
 
                 goNextButton?.setOnClickListener {
+                    SoundManager.playSE(this@Home_MainActivity)
                     val intent = Intent(this@Home_MainActivity, Task_MainActivity::class.java)
                     startActivity(intent)
                     finish()

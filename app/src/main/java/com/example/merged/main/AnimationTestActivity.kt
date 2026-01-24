@@ -77,6 +77,7 @@ class AnimationTestActivity : AppCompatActivity() {
         }
 
         btn.setOnClickListener {
+            SoundManager.playSE(this@AnimationTestActivity)
             startActivity(Intent(this, Home_MainActivity::class.java))
             finish()
         }
