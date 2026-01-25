@@ -1,67 +1,87 @@
 package com.example.merged.main
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.example.merged.R
-import com.example.merged.first_setup.Test
 
 class StatusActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_status)
 
+        displayCurrentStatus()
+
         // 画面上部の「ばつ」アイコンのクリック処理
         findViewById<ImageView>(R.id.back_button_status)?.setOnClickListener {
-            finish() // 現在のActivityを終了し、ホーム画面に戻る
+            finish()
         }
 
         setupNavigationBar()
-        setNavigationSelection()
+        setNavigationSelection() // ここで見た目を整える
+    }
+
+    private fun displayCurrentStatus() {
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        // 変数名の訂正に基づき取得
+        val growth = prefs.getInt("cherryBlossomGrowthStage", 0)
+        val flower = prefs.getInt("cherryBlossomStatus", 0)
+        val soil = prefs.getInt("soilStatus", 0)
+
+        // 成長段階の反映 (Lv.x)
+        val growthText = getString(R.string.growth_level_format, growth)
+        findViewById<TextView>(R.id.growth_stage_text)?.text = growthText
+
+        // 数値を文字に変換するヘルパー関数
+        fun convertRating(value: Int): String {
+            return when (value) {
+                2 -> "普通"
+                1 -> "悪い"
+                else -> "悪い" // 0や予期せぬ値
+            }
+        }
+
+        // 花と土の状態を反映
+        findViewById<TextView>(R.id.flower_status_text)?.text = convertRating(flower)
+        findViewById<TextView>(R.id.soil_status_text)?.text = convertRating(soil)
     }
 
     private fun setupNavigationBar() {
-        // HOMEボタンが押されたら、この画面を閉じて前の画面(MainActivity)に戻る
+        val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
+
+        // システムの自動着色をオフにする（紫になるのを防ぐ）
+        nav?.itemIconTintList = null
+        nav?.itemTextColor = null
+
         findViewById<View>(R.id.nav_home)?.setOnClickListener {
             finish()
         }
 
-        // STATUSボタンは現在の画面なので、何もしない
         findViewById<View>(R.id.nav_status)?.setOnClickListener {
-            // 何もしない
+            // 何もしない（現在地）
         }
-
 
         findViewById<View>(R.id.nav_settings)?.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+            finish() // 画面を切り替えるときに今の画面を閉じる
         }
 
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
             val intent = Intent(this, ResultActivity::class.java)
             startActivity(intent)
+            finish() // 画面を切り替えるときに今の画面を閉じる
         }
     }
 
     private fun setNavigationSelection() {
-        val selectedNavId = R.id.nav_status
-
-        resetNavigationColors()
-
-        val navItemView = findViewById<View>(selectedNavId)
-        val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-        val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
-
-        val activeColor = ContextCompat.getColor(this, android.R.color.holo_green_dark)
-        navIcon?.setColorFilter(activeColor)
-        navLabel?.setTextColor(activeColor)
-    }
-
-    private fun resetNavigationColors() {
         val navItems = listOf(
             R.id.nav_home,
             R.id.nav_status,
@@ -69,15 +89,32 @@ class StatusActivity : AppCompatActivity() {
             R.id.nav_result
         )
 
-        val defaultColor = ContextCompat.getColor(this, android.R.color.darker_gray)
+        // 色の定義
+        val activeColor = Color.parseColor("#00008B") // 濃い青
+        val defaultColor = Color.parseColor("#A9A9A9") // グレー
 
         for (itemId in navItems) {
-            val navItemView = findViewById<View>(itemId)
-            val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-            val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
+            val navItemView = findViewById<View>(itemId) ?: continue
+            val navIcon = navItemView.findViewById<ImageView>(R.id.nav_icon)
+            val navLabel = navItemView.findViewById<TextView>(R.id.nav_label)
 
-            navIcon?.setColorFilter(defaultColor)
-            navLabel?.setTextColor(defaultColor)
+            if (itemId == R.id.nav_status) {
+                // 【現在地（Status）の設定】
+                navIcon?.imageTintList = ColorStateList.valueOf(activeColor)
+                navLabel?.setTextColor(activeColor)
+                navLabel?.setTypeface(null, Typeface.BOLD) // 太字
+
+                // ★水色のカプセル背景を表示
+                navItemView.setBackgroundResource(R.drawable.nav_item_background)
+            } else {
+                // 【それ以外（グレー）の設定】
+                navIcon?.imageTintList = ColorStateList.valueOf(defaultColor)
+                navLabel?.setTextColor(defaultColor)
+                navLabel?.setTypeface(null, Typeface.NORMAL) // 通常
+
+                // 背景を消す
+                navItemView.background = null
+            }
         }
     }
 }

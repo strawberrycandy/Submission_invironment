@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -27,10 +29,14 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 import com.example.merged.R
-import com.example.merged.first_setup.Test
 import android.app.PendingIntent
 import android.util.Log
-
+import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
+import android.os.Handler
+import android.os.Looper
+import androidx.constraintlayout.widget.ConstraintLayout
+import kotlin.random.Random
 
 
 class Home_MainActivity : AppCompatActivity() {
@@ -54,6 +60,11 @@ class Home_MainActivity : AppCompatActivity() {
     private val CHERRY_BLOSSOM_STATUS_MAX = 2 // 使用しないが定義
     private val CHERRY_BLOSSOM_STATUS_MIN = 0 // 使用しないが定義
 
+    // 小鳥を動かすための変数
+    private val birdHandler = Handler(Looper.getMainLooper())
+    private var birdRunnable: Runnable? = null
+    private val birdResList = listOf(R.drawable.suzume, R.drawable.mejiro)
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -68,6 +79,7 @@ class Home_MainActivity : AppCompatActivity() {
 
         cherryBlossomGrowthStage = prefs.getInt("cherryBlossomGrowthStage", 0)
         tasksCompletedForGrowth = prefs.getInt("tasksWithThisCherryBlossom", 0)
+        prefs.edit().putInt("TASKS_PER_GROWTH_STAGE", TASKS_PER_GROWTH_STAGE).apply()
 
         super.onCreate(savedInstanceState)
 
@@ -79,6 +91,7 @@ class Home_MainActivity : AppCompatActivity() {
         // ナビゲーションバーを取得して、色の自動変更を無効にする
         val nav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
         nav?.itemIconTintList = null
+        nav?.itemTextColor = null // 文字の自動変色もオフにする
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(
@@ -90,6 +103,8 @@ class Home_MainActivity : AppCompatActivity() {
             }
         }
         createNotificationChannel()
+        // SoundManagerを初期化
+        SoundManager.init(this)
     }
 
     private fun setupLayout(layoutId: Int) {
@@ -129,6 +144,7 @@ class Home_MainActivity : AppCompatActivity() {
         updateCherryBlossomStage()
 
         startButton?.setOnClickListener {
+            SoundManager.playSE(this)
             startTimer(defaultTimerDurationMinutes)
             Toast.makeText(this, "タイマーを開始しました", Toast.LENGTH_SHORT).show()
             scheduleNotification()
@@ -142,6 +158,7 @@ class Home_MainActivity : AppCompatActivity() {
 
         if (!isTimerRunning) {
             setupLayout(R.layout.activity_main)
+            startBirdLoop()
             return
         }
 
@@ -156,6 +173,7 @@ class Home_MainActivity : AppCompatActivity() {
         goNextButton?.visibility = View.GONE
 
         stopButton?.setOnClickListener {
+            SoundManager.playSE(this)
             stopTimer()
             Toast.makeText(this, "タイマーを停止しました", Toast.LENGTH_SHORT).show()
             setupLayout(R.layout.activity_main)
@@ -166,7 +184,8 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun startTimer(durationMinutes: Long) {
 
-        val durationMillis = durationMinutes * 60 * 1000
+        val durationMillis = durationMinutes * 60 * 1000 /6
+
 
         countDownTimer?.cancel()
 
@@ -199,6 +218,7 @@ class Home_MainActivity : AppCompatActivity() {
                 goNextButton?.visibility = View.VISIBLE
 
                 goNextButton?.setOnClickListener {
+                    SoundManager.playSE(this@Home_MainActivity)
                     val intent = Intent(this@Home_MainActivity, Task_MainActivity::class.java)
                     startActivity(intent)
                     finish()
@@ -209,19 +229,23 @@ class Home_MainActivity : AppCompatActivity() {
         }.start()
 
         isTimerRunning = true
+
+        // 小鳥たちが動き始めます
+        startBirdLoop()
     }
 
     private fun stopTimer() {
         countDownTimer?.cancel()
         isTimerRunning = false
+
+        // 小鳥たちが、止まります、、、、、、、、、
+        stopBirdLoop()
         WorkManager.getInstance(this).cancelAllWork()
     }
 
     // --- 桜の成長ロジック (新規追加) ---
 
-    /**
-     * タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
-     */
+    // タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
     private fun updateCherryBlossomStage() {
         // 成長段階を計算 (例: 2タスクで1段階アップ)
         val newStage = tasksCompletedForGrowth / TASKS_PER_GROWTH_STAGE
@@ -299,15 +323,20 @@ class Home_MainActivity : AppCompatActivity() {
 
         resetNavigationColors()
 
-        val navItemView = findViewById<View>(selectedNavId)
+        val navItemView = findViewById<View>(selectedNavId) ?: return
 
-        val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-        val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
+        val navIcon = navItemView.findViewById<ImageView>(R.id.nav_icon)
+        val navLabel = navItemView.findViewById<TextView>(R.id.nav_label)
 
-        val activeColor = ContextCompat.getColor(this, android.R.color.holo_green_dark)
+        // ★文字色とアイコンを「黒」に指定
+        val activeColor = Color.BLACK
 
         navIcon?.setColorFilter(activeColor)
         navLabel?.setTextColor(activeColor)
+        navLabel?.setTypeface(null, Typeface.BOLD)
+
+        // ★修正点：Homeが選択された時に水色の背景をセットする
+        navItemView.setBackgroundResource(R.drawable.nav_item_background)
     }
 
     private fun resetNavigationColors() {
@@ -321,12 +350,16 @@ class Home_MainActivity : AppCompatActivity() {
         val defaultColor = ContextCompat.getColor(this, android.R.color.darker_gray)
 
         for (itemId in navItems) {
-            val navItemView = findViewById<View>(itemId)
-            val navIcon = navItemView?.findViewById<ImageView>(R.id.nav_icon)
-            val navLabel = navItemView?.findViewById<TextView>(R.id.nav_label)
+            val navItemView = findViewById<View>(itemId) ?: continue
+            val navIcon = navItemView.findViewById<ImageView>(R.id.nav_icon)
+            val navLabel = navItemView.findViewById<TextView>(R.id.nav_label)
 
             navIcon?.setColorFilter(defaultColor)
             navLabel?.setTextColor(defaultColor)
+            navLabel?.setTypeface(null, Typeface.NORMAL)
+
+            // 背景をクリアする
+            navItemView.background = null
         }
     }
 
@@ -348,6 +381,88 @@ class Home_MainActivity : AppCompatActivity() {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
+    }
+
+    // 鳥の出現ループを管理
+    private fun startBirdLoop() {
+        stopBirdLoop() // 二重起動防止
+        birdRunnable = object : Runnable {
+            override fun run() {
+                // 現在のレイアウトがstatus_layoutの時だけ鳥を出す
+                if (isTimerRunning && currentLayoutId == R.layout.status_layout) {
+                    spawnBird()
+                }
+                // 5秒〜10秒のランダムな間隔で次の鳥を出現させる
+                val nextDelay = Random.nextLong(5000, 10000)
+                birdHandler.postDelayed(this, nextDelay)
+            }
+        }
+        birdHandler.postDelayed(birdRunnable!!, 3000) // 初回は3秒後に出現
+    }
+
+    private fun stopBirdLoop() {
+        birdRunnable?.let { birdHandler.removeCallbacks(it) }
+    }
+
+    // 鳥を生成してアニメーションさせる
+    private fun spawnBird() {
+        val rootLayout = findViewById<ConstraintLayout>(R.id.rootLayout) ?: return
+
+        // 1. ImageViewの動的生成
+        val bird = ImageView(this)
+        val randomId = Random.nextInt(birdResList.size)
+        val resId = birdResList[randomId]
+        bird.setImageResource(resId)
+
+        // 鳥のサイズ設定 (例: 60dp)
+        val size = (100 * resources.displayMetrics.density).toInt()
+        val params = ConstraintLayout.LayoutParams(size, size)
+        bird.layoutParams = params
+
+        // 2. 出現位置の設定
+        val screenWidth = rootLayout.width.toFloat()
+        val groundY = rootLayout.height.toFloat() * 0.7f // 画面の下の方(草むら付近)
+
+        // 左から右か、右から左かランダムに決定
+        val isLeftToRight = Random.nextBoolean()
+        val startX = if (isLeftToRight) -size.toFloat() else screenWidth
+        val endX = if (isLeftToRight) screenWidth else -size.toFloat()
+
+        // 逆方向に歩くときは画像を反転させる
+        if (!isLeftToRight) {
+            if (randomId == 0) bird.scaleX = -1f
+        } else {
+            if (randomId == 1) bird.scaleX = -1f
+        }
+
+        bird.x = startX
+        bird.y = groundY + Random.nextInt(-50, 50) // 高さを少しバラけさせる
+
+        rootLayout.addView(bird)
+
+        // 3. アニメーション (水平移動 + ピョコピョコ跳ねる)
+
+        // 横移動
+        val moveX = ObjectAnimator.ofFloat(bird, "translationX", startX, endX)
+        moveX.duration = Random.nextLong(4000, 7000) // 4〜7秒かけて横切る
+
+        // 縦のピョコピョコ（歩いている感じ）
+        val hopY = ObjectAnimator.ofFloat(bird, "translationY", bird.y, bird.y - 30f)
+        hopY.duration = 300
+        hopY.repeatCount = (moveX.duration / hopY.duration).toInt()
+        hopY.repeatMode = ObjectAnimator.REVERSE
+
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(moveX, hopY)
+
+        // アニメーション終了後にViewを削除
+        animatorSet.addListener(object : android.animation.AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                rootLayout.removeView(bird)
+            }
+        })
+
+        animatorSet.start()
     }
 }
 
@@ -390,3 +505,4 @@ class NotificationWorker(
         return Result.success()
     }
 }
+
