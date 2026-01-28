@@ -43,7 +43,7 @@ val tutorialPages = listOf(
     TutorialPage(2, "まずは桜の木を植えてみましょう...", TutorialStage.TUTORIAL),
     TutorialPage(3, "", TutorialStage.ME),
     TutorialPage(4, "この桜は、あなたが目を休めるたびに成長します。", TutorialStage.TREE),
-    TutorialPage(5, "逆に、目を休めないと桜はどんどん悪くなっていきます。", TutorialStage.ME),
+    TutorialPage(5, "逆に、目を休めないと桜はどんどん悪くなり、木の周りで虫が飛び回るようになります。", TutorialStage.ME),
     TutorialPage(6, "では、さっそく育ててみましょう！", TutorialStage.TREE)
 )
 
