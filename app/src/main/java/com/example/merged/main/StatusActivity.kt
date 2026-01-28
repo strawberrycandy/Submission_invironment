@@ -33,24 +33,26 @@ class StatusActivity : AppCompatActivity() {
         // 変数名の訂正に基づき取得
         val growth = prefs.getInt("cherryBlossomGrowthStage", 0)
         val flower = prefs.getInt("cherryBlossomStatus", 0)
-        val soil = prefs.getInt("soilStatus", 0)
+
+        findViewById<TextView>(R.id.sakura_type_text)?.text = "ソメイヨシノ"
 
         // 成長段階の反映 (Lv.x)
         val growthText = getString(R.string.growth_level_format, growth)
         findViewById<TextView>(R.id.growth_stage_text)?.text = growthText
 
-        // 数値を文字に変換するヘルパー関数
+        // ★判定ロジックの修正
         fun convertRating(value: Int): String {
             return when (value) {
-                2 -> "普通"
-                1 -> "悪い"
-                else -> "悪い" // 0や予期せぬ値
+                0 -> "良い"  // 最初（0）は「良い」から始まる
+                1 -> "普通"
+                2 -> "悪い"
+                else -> "良い"
             }
         }
 
         // 花と土の状態を反映
         findViewById<TextView>(R.id.flower_status_text)?.text = convertRating(flower)
-        findViewById<TextView>(R.id.soil_status_text)?.text = convertRating(soil)
+
     }
 
     private fun setupNavigationBar() {

@@ -4,6 +4,9 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 
+// 全く意味のないファイルです
+// 消すと色々なファイルを変更しないといけなくなって面倒になるので残してます;;
+
 object TaskStatsManager {
 
     private const val PREF_NAME = "task_prefs"

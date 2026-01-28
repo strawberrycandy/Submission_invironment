@@ -37,15 +37,17 @@ import android.os.Handler
 import android.os.Looper
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
-
+import com.example.merged.util.BugManager
 
 class Home_MainActivity : AppCompatActivity() {
+
+    private val EYE_REST_NOTIFICATION_TAG = "eye_rest_notification"
 
 
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false // タイマーが動いているかのフラグ
-    private val defaultTimerDurationMinutes = 3L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
+    private val defaultTimerDurationMinutes = 1L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -184,7 +186,8 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun startTimer(durationMinutes: Long) {
 
-        val durationMillis = durationMinutes * 60 * 1000 /6
+        //val durationMillis = durationMinutes * 60 * 1000 /6
+        val durationMillis = 10 * 1000L
 
 
         countDownTimer?.cancel()
@@ -258,6 +261,14 @@ class Home_MainActivity : AppCompatActivity() {
         val limitedStage = newStage.coerceIn(CHERRY_BLOSSOM_GROWTH_STAGE_MIN, CHERRY_BLOSSOM_GROWTH_STAGE_MAX)
 
         cherryBlossomGrowthStage = limitedStage
+
+        // 計算したステージとタスク回数を保存する
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        prefs.edit().apply {
+            putInt("cherryBlossomGrowthStage", cherryBlossomGrowthStage)
+            putInt("tasksWithThisCherryBlossom", tasksCompletedForGrowth)
+            apply()
+        }
 
         // タスク達成回数表示の更新
         val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
@@ -370,9 +381,15 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun scheduleNotification() {
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(defaultTimerDurationMinutes, TimeUnit.MINUTES)
+            .setInitialDelay(defaultTimerDurationMinutes * 60 / 6, TimeUnit.SECONDS)
+            .addTag(EYE_REST_NOTIFICATION_TAG) // Add a tag to the work request
             .build()
         WorkManager.getInstance(this).enqueue(workRequest)
+
+        // Store the WorkRequest ID in SharedPreferences
+        getSharedPreferences("app_prefs", MODE_PRIVATE).edit()
+            .putString("eye_rest_work_id", workRequest.id.toString())
+            .apply()
     }
 
     private fun createNotificationChannel() {
