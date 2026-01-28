@@ -41,6 +41,8 @@ import com.example.merged.util.BugManager
 
 class Home_MainActivity : AppCompatActivity() {
 
+    private val EYE_REST_NOTIFICATION_TAG = "eye_rest_notification"
+
 
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
@@ -431,13 +433,15 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun scheduleNotification() {
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            // 通知時間を30秒後にセットしています。
-            // 30分に戻したい場合は "/ 6" を削除し、defaultTimerDurationMinutes = 30L としてください
-            // 自由に時間を調整したい方へ　ここは以下の式で調整しています：
-            // 通知時間(duration) = 設定した時間(秒) * 60 => 設定した時間(分)
             .setInitialDelay(defaultTimerDurationMinutes * 60 / 6, TimeUnit.SECONDS)
+            .addTag(EYE_REST_NOTIFICATION_TAG) // Add a tag to the work request
             .build()
         WorkManager.getInstance(this).enqueue(workRequest)
+
+        // Store the WorkRequest ID in SharedPreferences
+        getSharedPreferences("app_prefs", MODE_PRIVATE).edit()
+            .putString("eye_rest_work_id", workRequest.id.toString())
+            .apply()
     }
 
     private fun createNotificationChannel() {
