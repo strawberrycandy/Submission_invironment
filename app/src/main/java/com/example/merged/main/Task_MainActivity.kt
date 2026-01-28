@@ -4,6 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import android.content.Context
 
 class Task_MainActivity : ComponentActivity() {
 
@@ -13,8 +17,25 @@ class Task_MainActivity : ComponentActivity() {
         setContent {
             BreathTimerScreen(
                 onTaskFinished = {
-                    // 統計用のデータを保存する
-                    com.example.merged.util.TaskStatsManager.saveTaskCompleted(this@Task_MainActivity)
+                    val taskPrefs = getSharedPreferences("task_prefs", MODE_PRIVATE)
+                    val japanZone = ZoneId.of("Asia/Tokyo")
+                    val now = ZonedDateTime.now(japanZone)
+
+                    val dateStr = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                    val hourStr = now.format(DateTimeFormatter.ofPattern("HH"))
+
+                    val editor = taskPrefs.edit()
+
+                    // 【日グラフ用】
+                    val hourKey = "task_count_${dateStr}_${hourStr}"
+                    editor.putInt(hourKey, taskPrefs.getInt(hourKey, 0) + 1)
+
+                    // 【週・月グラフ用】
+                    val dayKey = "task_count_${dateStr}"
+                    editor.putInt(dayKey, taskPrefs.getInt(dayKey, 0) + 1)
+
+                    editor.apply() // 即座に書き込み！
+
                     // 1. データの読み込みと更新
                     val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
                     val currentCount = prefs.getInt("tasksWithThisCherryBlossom", 0)
