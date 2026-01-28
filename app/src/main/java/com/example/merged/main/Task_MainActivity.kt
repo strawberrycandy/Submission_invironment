@@ -8,6 +8,8 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import android.content.Context
+import androidx.work.WorkManager
+import java.util.UUID
 
 class Task_MainActivity : ComponentActivity() {
 
@@ -47,6 +49,18 @@ class Task_MainActivity : ComponentActivity() {
                     // 全体累計も更新
                     val totalCount = prefs.getInt("taskCountTotal", 0)
                     prefs.edit().putInt("taskCountTotal", totalCount + 1).apply()
+
+                    // Cancel the scheduled eye rest notification
+                    val eyeRestWorkId = prefs.getString("eye_rest_work_id", null)
+                    eyeRestWorkId?.let {
+                        try {
+                            WorkManager.getInstance(applicationContext).cancelWorkById(UUID.fromString(it))
+                            prefs.edit().remove("eye_rest_work_id").apply() // Remove the stored ID after cancellation
+                        } catch (e: IllegalArgumentException) {
+                            // Handle cases where the stored ID is not a valid UUID
+                            e.printStackTrace()
+                        }
+                    }
 
                     // 2. アニメーション画面（AnimationTestActivity）への遷移
                     // this@Task_MainActivity と書くことで、Compose内から確実に画面を切り替えます
