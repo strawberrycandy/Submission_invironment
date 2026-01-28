@@ -565,6 +565,7 @@ class NotificationWorker(
             .setContentTitle("休憩の時間です")
             .setContentText("目を休ませましょう")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(longArrayOf(0, 500, 100, 500)) // Vibrate for 500ms, pause for 100ms, vibrate for 500ms
             .setContentIntent(pendingIntent)
             .setDeleteIntent(pendingDismissIntent) // ここでセット
             .setAutoCancel(true)
