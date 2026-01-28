@@ -39,9 +39,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
 import com.example.merged.util.BugManager
 
-
-
-
 class Home_MainActivity : AppCompatActivity() {
 
     private val EYE_REST_NOTIFICATION_TAG = "eye_rest_notification"
