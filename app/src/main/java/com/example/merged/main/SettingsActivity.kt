@@ -130,7 +130,7 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            startActivity(Intent(this, ResultActivity::class.java))
+            startActivity(Intent(this, TaskStatsActivity::class.java))
             finish()
         }
         findViewById<View>(R.id.nav_settings)?.setOnClickListener {

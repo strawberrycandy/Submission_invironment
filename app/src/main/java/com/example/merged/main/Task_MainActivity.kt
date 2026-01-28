@@ -35,6 +35,7 @@ class Task_MainActivity : ComponentActivity() {
                     editor.putInt(dayKey, taskPrefs.getInt(dayKey, 0) + 1)
 
                     editor.apply() // 即座に書き込み！
+
                     // 1. データの読み込みと更新
                     val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
                     val currentCount = prefs.getInt("tasksWithThisCherryBlossom", 0)
