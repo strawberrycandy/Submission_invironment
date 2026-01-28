@@ -47,7 +47,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false // タイマーが動いているかのフラグ
-    private val defaultTimerDurationMinutes = 3L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
+    private val defaultTimerDurationMinutes = 1L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
     // 桜の成長段階 (0〜4)
@@ -191,7 +191,8 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun startTimer(durationMinutes: Long) {
 
-        val durationMillis = durationMinutes * 60 * 1000 / 6
+        //val durationMillis = durationMinutes * 60 * 1000 /6
+        val durationMillis = 10 * 1000L
 
 
         countDownTimer?.cancel()
@@ -264,6 +265,14 @@ class Home_MainActivity : AppCompatActivity() {
         val limitedStage = newStage.coerceIn(CHERRY_BLOSSOM_GROWTH_STAGE_MIN, CHERRY_BLOSSOM_GROWTH_STAGE_MAX)
 
         cherryBlossomGrowthStage = limitedStage
+
+        // 計算したステージとタスク回数を保存する
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        prefs.edit().apply {
+            putInt("cherryBlossomGrowthStage", cherryBlossomGrowthStage)
+            putInt("tasksWithThisCherryBlossom", tasksCompletedForGrowth)
+            apply()
+        }
 
         // タスク達成回数表示の更新
         val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
