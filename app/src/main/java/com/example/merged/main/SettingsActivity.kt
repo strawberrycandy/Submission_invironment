@@ -129,8 +129,12 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, StatusActivity::class.java))
             finish()
         }
+
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            startActivity(Intent(this, ResultActivity::class.java))
+            val intent = Intent(this, TaskStatsActivity::class.java)
+            // ↓ これが重要！Homeから行く時と同じフラグを指定します
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
             finish()
         }
         findViewById<View>(R.id.nav_settings)?.setOnClickListener {

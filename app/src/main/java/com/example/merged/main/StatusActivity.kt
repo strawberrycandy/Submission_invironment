@@ -74,10 +74,14 @@ class StatusActivity : AppCompatActivity() {
             finish() // 画面を切り替えるときに今の画面を閉じる
         }
 
+
+        // StatusActivity.kt および SettingsActivity.kt の中のボタン処理
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, ResultActivity::class.java)
+            val intent = Intent(this, TaskStatsActivity::class.java)
+            // ↓ これが重要！Homeから行く時と同じフラグを指定します
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
-            finish() // 画面を切り替えるときに今の画面を閉じる
+            finish()
         }
     }
 

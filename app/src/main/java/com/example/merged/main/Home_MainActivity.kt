@@ -45,6 +45,7 @@ class Home_MainActivity : AppCompatActivity() {
     // ★★★ 桜の成長に関する定数と変数 (新規/修正) ★★★
     private var countDownTimer: CountDownTimer? = null
     private var isTimerRunning = false // タイマーが動いているかのフラグ
+    private var hasSavedCurrentTask = false // 保存済みかどうかを管理するフラグ
     private val defaultTimerDurationMinutes = 3L // ここでタイマーの時間を調整できます(1L = 1分, 30L = 30分)
     private var currentLayoutId: Int = R.layout.activity_main
 
@@ -183,16 +184,22 @@ class Home_MainActivity : AppCompatActivity() {
     // --- タイマー処理 ---
 
     private fun startTimer(durationMinutes: Long) {
-
-        val durationMillis = durationMinutes * 60 * 1000 /6
-
-
+        // 1. 既存のタイマーを確実にキャンセルして破棄する（二重起動防止）
         countDownTimer?.cancel()
+        countDownTimer = null
+
+        // 2. 保存フラグをリセット
+        hasSavedCurrentTask = false
+
+        // 3. 重複予約を防ぐため、WorkManagerの古いジョブをキャンセル
+        WorkManager.getInstance(this).cancelAllWork()
+
+        val durationMillis = durationMinutes * 60 * 1000 / 6
 
         countDownTimer = object : CountDownTimer(durationMillis, 1000) {
 
             override fun onTick(millisUntilFinished: Long) {
-                // ここに書かないとタイマーカウントダウン中にタスク回数の表示が出ない;;
+                // タイマーカウントダウン中の表示更新
                 val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
                 taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
 
@@ -202,21 +209,20 @@ class Home_MainActivity : AppCompatActivity() {
                 val formattedTime = String.format(java.util.Locale.ROOT, "%02d:%02d", minutes, seconds)
 
                 findViewById<TextView>(R.id.timer_display)?.text = formattedTime
-
-                // ★★★ 削除: タイマー同時進行の画像更新処理を削除しました ★★★
             }
 
             override fun onFinish() {
+
                 isTimerRunning = false
 
-                updateCherryBlossomStage()
-
+                // UIの表示切り替え（タイマーが終了したことを見せるだけ）
                 findViewById<TextView>(R.id.timer_display)?.text = "00:00"
                 findViewById<Button>(R.id.stopButton)?.visibility = View.GONE
 
                 val goNextButton = findViewById<Button>(R.id.go_break_task_button)
                 goNextButton?.visibility = View.VISIBLE
 
+                // タスク画面へ移動するボタンの設定
                 goNextButton?.setOnClickListener {
                     SoundManager.playSE(this@Home_MainActivity)
                     val intent = Intent(this@Home_MainActivity, Task_MainActivity::class.java)
@@ -224,13 +230,11 @@ class Home_MainActivity : AppCompatActivity() {
                     finish()
                 }
 
-                Toast.makeText(this@Home_MainActivity, "休憩時間です！", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@Home_MainActivity, "準備完了！タスクを開始しましょう", Toast.LENGTH_LONG).show()
             }
         }.start()
 
         isTimerRunning = true
-
-        // 小鳥たちが動き始めます
         startBirdLoop()
     }
 
@@ -247,20 +251,15 @@ class Home_MainActivity : AppCompatActivity() {
 
     // タスク達成回数に基づいて桜の成長段階を計算し、UIを更新する
     private fun updateCherryBlossomStage() {
-        // 成長段階を計算 (例: 2タスクで1段階アップ)
+        // 成長段階を計算
         val newStage = tasksCompletedForGrowth / TASKS_PER_GROWTH_STAGE
-
-        // 成長段階を最大値(4)までに制限
         val limitedStage = newStage.coerceIn(CHERRY_BLOSSOM_GROWTH_STAGE_MIN, CHERRY_BLOSSOM_GROWTH_STAGE_MAX)
-
         cherryBlossomGrowthStage = limitedStage
 
-        // タスク達成回数表示の更新
+        // UI更新
         val taskCountText = findViewById<TextView>(R.id.tasks_with_cherry_blossom_text)
         taskCountText?.text = "この桜とのタスク回数: ${tasksCompletedForGrowth}回"
 
-        Log.d("Home_MainActivity", "${tasksCompletedForGrowth}")
-        // 桜画像の更新
         updateTreeImageByStage(cherryBlossomGrowthStage)
     }
 
@@ -464,6 +463,23 @@ class Home_MainActivity : AppCompatActivity() {
 
         animatorSet.start()
     }
+    private fun saveTaskForGraph() {
+        if (hasSavedCurrentTask) return
+
+        val prefs = getSharedPreferences("task_prefs", MODE_PRIVATE)
+        val japanZone = java.time.ZoneId.of("Asia/Tokyo")
+        val now = java.time.ZonedDateTime.now(japanZone)
+        val dateStr = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
+        val hourStr = now.format(java.time.format.DateTimeFormatter.ofPattern("HH"))
+
+        val editor = prefs.edit()
+        editor.putInt("task_count_${dateStr}_${hourStr}", prefs.getInt("task_count_${dateStr}_${hourStr}", 0) + 1)
+        editor.putInt("task_count_${dateStr}", prefs.getInt("task_count_${dateStr}", 0) + 1)
+        editor.commit()
+
+        hasSavedCurrentTask = true
+        Log.d("DEBUG_SAVE", "グラフデータを1回保存しました")
+    }
 }
 
 // --- NotificationWorker (変更なし) ---
@@ -475,8 +491,6 @@ class NotificationWorker(
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun doWork(): Result {
 
-        // 【重要】グラフ用のデータを保存する（ここがズレの解消ポイント！）
-        //saveTaskForGraph()
 
         val intent = Intent(context, Task_MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -509,34 +523,9 @@ class NotificationWorker(
         return Result.success()
     }
 
-    // グラフ側（TaskStatsActivity）と全く同じルールで保存する関数
-    private fun saveTaskForGraph() {
-        val prefs = context.getSharedPreferences("task_prefs", Context.MODE_PRIVATE)
 
-        // 日本時間を取得
-        val japanZone = java.time.ZoneId.of("Asia/Tokyo")
-        val now = java.time.ZonedDateTime.now(japanZone)
 
-        // 「20260128」形式
-        val dateStr = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
-        // 「09」形式
-        val hourStr = now.format(java.time.format.DateTimeFormatter.ofPattern("HH"))
 
-        val editor = prefs.edit()
-
-        // 【1】「日のグラフ」用（時間別のキー）
-        val hourKey = "task_count_${dateStr}_${hourStr}"
-        val currentHourCount = prefs.getInt(hourKey, 0)
-        editor.putInt(hourKey, currentHourCount + 1)
-
-        // 【2】「週・月のグラフ」用（日付だけのキー）★ここが足りませんでした
-        val dayKey = "task_count_${dateStr}"
-        val currentDayCount = prefs.getInt(dayKey, 0)
-        editor.putInt(dayKey, currentDayCount + 1)
-
-        // まとめて保存！
-        editor.apply()
-    }
 }
 
 
