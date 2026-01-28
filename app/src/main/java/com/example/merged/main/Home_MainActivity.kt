@@ -37,6 +37,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
+import com.example.merged.util.BugManager
+
+
 
 
 class Home_MainActivity : AppCompatActivity() {
@@ -83,6 +86,8 @@ class Home_MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
+        setupLayout(R.layout.activity_main)
+
         // ★★★ 変更: アプリ起動時に成長状態をチェックし、UIに反映させる ★★★
         updateCherryBlossomStage()
 
@@ -106,6 +111,9 @@ class Home_MainActivity : AppCompatActivity() {
         // SoundManagerを初期化
         SoundManager.init(this)
     }
+
+
+
 
     private fun setupLayout(layoutId: Int) {
         setContentView(layoutId)
@@ -263,6 +271,63 @@ class Home_MainActivity : AppCompatActivity() {
         Log.d("Home_MainActivity", "${tasksCompletedForGrowth}")
         // 桜画像の更新
         updateTreeImageByStage(cherryBlossomGrowthStage)
+
+        // 虫カウンターの更新
+        updateBugDisplay()
+    }
+
+    /**
+     * 虫の数を取得してUIに反映させる
+     */
+    private fun updateBugDisplay() {
+        if (currentLayoutId != R.layout.activity_main) {
+            Log.d("BugDisplay", "Not in activity_main.xml, skipping bug display update.")
+            return
+        }
+        val bugCount = BugManager.getBugCount(this)
+        Log.d("BugDisplay", "Current Bug Count: $bugCount")
+
+        if (bugCount >= 3) {
+            Log.d("BugDisplay", "Bug count reached 3 or more. Applying penalty.")
+            if (cherryBlossomGrowthStage > CHERRY_BLOSSOM_GROWTH_STAGE_MIN) {
+                cherryBlossomGrowthStage-- // Decrease stage
+                // Update tasksCompletedForGrowth to reflect new stage
+                tasksCompletedForGrowth = cherryBlossomGrowthStage * TASKS_PER_GROWTH_STAGE
+                val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                prefs.edit().putInt("cherryBlossomGrowthStage", cherryBlossomGrowthStage).apply()
+                prefs.edit().putInt("tasksWithThisCherryBlossom", tasksCompletedForGrowth).apply()
+                BugManager.resetBugs(this) // Reset bugs after applying penalty
+                updateCherryBlossomStage() // Update UI to reflect new stage
+                Log.d("BugDisplay", "Penalty applied: stage decreased to $cherryBlossomGrowthStage, bugs reset.")
+                // No need to update bug display again here, as updateCherryBlossomStage() will trigger it.
+                return // Exit early as stage change will re-trigger updateBugDisplay
+            } else {
+                // Cannot decrease stage further, just reset bugs to prevent infinite penalty
+                BugManager.resetBugs(this)
+                Log.d("BugDisplay", "Cannot decrease stage further, bugs reset.")
+            }
+        }
+
+        val bugImageViews = listOf(
+            findViewById<ImageView>(R.id.bug_image_1),
+            findViewById<ImageView>(R.id.bug_image_2),
+            findViewById<ImageView>(R.id.bug_image_3),
+            findViewById<ImageView>(R.id.bug_image_4),
+            findViewById<ImageView>(R.id.bug_image_5)
+        )
+
+        bugImageViews.forEachIndexed { index, imageView ->
+            if (imageView == null) {
+                Log.e("BugDisplay", "Bug image ${index + 1} (R.id.bug_image_${index + 1}) not found in layout!")
+            }
+            imageView?.visibility = if (index < bugCount) {
+                Log.d("BugDisplay", "Bug image ${index + 1} set to VISIBLE")
+                View.VISIBLE
+            } else {
+                Log.d("BugDisplay", "Bug image ${index + 1} set to GONE")
+                View.GONE
+            }
+        }
     }
 
     /**
@@ -486,12 +551,22 @@ class NotificationWorker(
             PendingIntent.FLAG_IMMUTABLE // セキュリティ上の決まり
         )
 
+        // 通知が消された時にBroadcastを送信するIntentを作成
+        val dismissIntent = Intent(context, NotificationDismissReceiver::class.java)
+        val pendingDismissIntent = PendingIntent.getBroadcast(
+            context,
+            System.currentTimeMillis().toInt(), // Make requestCode unique
+            dismissIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, "eye_rest_channel")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("休憩の時間です")
             .setContentText("目を休ませましょう")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+            .setDeleteIntent(pendingDismissIntent) // ここでセット
             .setAutoCancel(true)
             .build()
 
