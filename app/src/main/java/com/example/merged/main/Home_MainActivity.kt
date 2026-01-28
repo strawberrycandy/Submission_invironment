@@ -310,7 +310,7 @@ class Home_MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
-            val intent = Intent(this, ResultActivity::class.java)
+            val intent = Intent(this, TaskStatsActivity::class.java)
             startActivity(intent)
         }
     }
@@ -474,6 +474,10 @@ class NotificationWorker(
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun doWork(): Result {
+
+        // 【重要】グラフ用のデータを保存する（ここがズレの解消ポイント！）
+        //saveTaskForGraph()
+
         val intent = Intent(context, Task_MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -482,7 +486,7 @@ class NotificationWorker(
             context,
             0,
             intent,
-            PendingIntent.FLAG_IMMUTABLE // セキュリティ上の決まり
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(context, "eye_rest_channel")
@@ -504,5 +508,35 @@ class NotificationWorker(
 
         return Result.success()
     }
+
+    // グラフ側（TaskStatsActivity）と全く同じルールで保存する関数
+    private fun saveTaskForGraph() {
+        val prefs = context.getSharedPreferences("task_prefs", Context.MODE_PRIVATE)
+
+        // 日本時間を取得
+        val japanZone = java.time.ZoneId.of("Asia/Tokyo")
+        val now = java.time.ZonedDateTime.now(japanZone)
+
+        // 「20260128」形式
+        val dateStr = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"))
+        // 「09」形式
+        val hourStr = now.format(java.time.format.DateTimeFormatter.ofPattern("HH"))
+
+        val editor = prefs.edit()
+
+        // 【1】「日のグラフ」用（時間別のキー）
+        val hourKey = "task_count_${dateStr}_${hourStr}"
+        val currentHourCount = prefs.getInt(hourKey, 0)
+        editor.putInt(hourKey, currentHourCount + 1)
+
+        // 【2】「週・月のグラフ」用（日付だけのキー）★ここが足りませんでした
+        val dayKey = "task_count_${dateStr}"
+        val currentDayCount = prefs.getInt(dayKey, 0)
+        editor.putInt(dayKey, currentDayCount + 1)
+
+        // まとめて保存！
+        editor.apply()
+    }
 }
+
 

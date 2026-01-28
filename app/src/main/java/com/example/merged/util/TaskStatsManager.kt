@@ -1,5 +1,4 @@
 package com.example.merged.util
-
 import android.content.Context
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -10,6 +9,7 @@ object TaskStatsManager {
     private const val PREF_NAME = "task_prefs"
 
     fun saveTaskCompleted(context: Context) {
+        /*
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val now = LocalDateTime.now()
         val editor = prefs.edit()
@@ -44,5 +44,6 @@ object TaskStatsManager {
         )
 
         editor.apply()
+        */
     }
 }
