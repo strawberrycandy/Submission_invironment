@@ -192,7 +192,7 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun startTimer(durationMinutes: Long) {
 
-        val durationMillis = durationMinutes * 60 * 1000 /6
+        val durationMillis = durationMinutes * 60 * 1000 / 6
 
 
         countDownTimer?.cancel()
@@ -434,7 +434,9 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun scheduleNotification() {
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(defaultTimerDurationMinutes, TimeUnit.MINUTES)
+            // 通知時間を10秒後にセットしています。
+            // 30分に戻したい場合は "/ 6" を削除し、defaultTimerDurationMinutes = 30L としてください
+            .setInitialDelay(defaultTimerDurationMinutes * 60 / 6, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(this).enqueue(workRequest)
     }
