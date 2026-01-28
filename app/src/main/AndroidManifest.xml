@@ -33,7 +33,6 @@
         <activity android:name=".main.SettingsActivity"/>
         <activity android:name=".main.StatusActivity"/>
         <activity android:name=".main.FavoriteActivity"/>
-        <activity android:name=".first_setup.Test"/>
         <activity android:name=".main.Task_MainActivity"/>
         <activity android:name=".main.Evo_MainActivity"/>
         <activity android:name=".main.AnimationTestActivity"/>

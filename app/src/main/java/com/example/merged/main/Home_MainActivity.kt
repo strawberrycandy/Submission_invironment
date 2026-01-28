@@ -39,9 +39,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import kotlin.random.Random
 import com.example.merged.util.BugManager
 
-
-
-
 class Home_MainActivity : AppCompatActivity() {
 
 
@@ -434,8 +431,10 @@ class Home_MainActivity : AppCompatActivity() {
 
     private fun scheduleNotification() {
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            // 通知時間を10秒後にセットしています。
+            // 通知時間を30秒後にセットしています。
             // 30分に戻したい場合は "/ 6" を削除し、defaultTimerDurationMinutes = 30L としてください
+            // 自由に時間を調整したい方へ　ここは以下の式で調整しています：
+            // 通知時間(duration) = 設定した時間(秒) * 60 => 設定した時間(分)
             .setInitialDelay(defaultTimerDurationMinutes * 60 / 6, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(this).enqueue(workRequest)
