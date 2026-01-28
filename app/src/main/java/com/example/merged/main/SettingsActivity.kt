@@ -129,7 +129,6 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, StatusActivity::class.java))
             finish()
         }
-
         findViewById<View>(R.id.nav_result)?.setOnClickListener {
             val intent = Intent(this, TaskStatsActivity::class.java)
             // ↓ これが重要！Homeから行く時と同じフラグを指定します
