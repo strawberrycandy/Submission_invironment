@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="アプリ名 (仮)"
+        android:text="さくらブレイク"
         android:textSize="36sp"
         android:textColor="#39A3F7"
         android:fontFamily="sans-serif-light"
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ"
+        android:text="休憩するたびに、桜が少しずつ育っていきます。"
         android:textColor="#333333"
         android:textSize="14sp"
         />
