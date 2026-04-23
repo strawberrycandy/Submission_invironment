@@ -1,27 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.myfirstapp">
-
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.MyFirstApp">
+    android:theme="@style/Theme.merged"
+    android:label="@string/app_name"
+    android:icon="@mipmap/ic_launcher">
 
-        <activity android:name=".BreakTaskActivity" android:exported="false" />
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent-filter>
+    </activity>
 
-        <activity android:name=".MainActivity" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".first_setup.FirstStartActivity"/>
+        <activity android:name=".first_setup.TermsAndConditionsActivity"/>
+        <activity android:name=".first_setup.UsernameActivity"/>
+        <activity android:name=".first_setup.WelcomeActivity"/>
+        <activity
+            android:name=".first_setup.Tutorial_MainActivity"
+            android:theme="@style/Theme.merged.Material3" />
 
-    </application>
+
+        <activity android:name=".main.Home_MainActivity"/>
+        <activity android:name=".main.ResultActivity"/>
+        <activity android:name=".main.SettingsActivity"/>
+        <activity android:name=".main.StatusActivity"/>
+        <activity android:name=".main.FavoriteActivity"/>
+        <activity android:name=".first_setup.Test"/>
+        <activity android:name=".main.Task_MainActivity"/>
+        <activity android:name=".main.Evo_MainActivity"/>
+        <activity android:name=".main.AnimationTestActivity"/>
+
+        <activity android:name=".main.SettingsActivity"/>
+</application>
+
 
 </manifest>
