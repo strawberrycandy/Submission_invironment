@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="background_image_description">背景の画像</string>
+    <string name="button_start">スタート</string>
+    <string name="button_stop">ストップ</string>
+    <string name="button_break_task">体操画面へ</string>
+
+    <string name="nav_home_label">HOME</string>
+
+    <string name="nav_status_label">STATUS</string>
+    <string name="nav_favorite_label">FAVORITE</string>
+    <string name="nav_setting_label">SETTING</string>
+    <string name="nav_result_label">RESULT</string>
+
+    <string name="desc_background">背景画像</string>
+    <string name="desc_icon">ナビゲーションアイコン</string>
+
+</resources>
