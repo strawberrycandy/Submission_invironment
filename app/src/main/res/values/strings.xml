@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyFirstApp</string>
+    <string name="welcome_message">(%1$s)さん\nはじめまして！</string>
 </resources>
